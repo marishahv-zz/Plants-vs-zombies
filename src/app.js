@@ -1,3 +1,3 @@
-export function foo(text) {
-	console.log(text);
-}
+import { Game } from './Game';
+
+const game = new Game();

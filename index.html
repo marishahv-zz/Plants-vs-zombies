@@ -9,73 +9,24 @@
 	<script defer src="build/bundle.js"></script>
 </head>
 <body>
+	<audio src="audio/zombi-music.mp3"  id="zombiMusic"></audio>
 	<header>
 		<div class="wrapper">
 			<div class="menu">
 				<div class="sun-points"></div>
-				<div class="wallnut-card"></div>
-				<div class="pea-shooter-card"></div>
-				<div class="sunflower-card"></div>
+				<div id="wallnut_card"></div>
+				<div id="pea_shooter_card"></div>
+				<div id="sunflower_card" draggable="true"></div>
 			</div>
 			<button id="play"></button>
-			<!-- <i class="fas fa-volume-up music"></i> -->
-			<i class="fas fa-volume-mute music"></i>
+			<i class="fas fa-volume-up music"></i>
+			<i class="fas fa-volume-mute music not-displayed"></i>
+			<div id="temp"></div>	<!-- 	///////////////// -->
 		</div>
 	</header>
 	<main>
 		<div class="wrapper">
 			<div class="grid">
-				<div class="row">
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-				</div>
-				<div class="row">
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-				</div>
-				<div class="row">
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-				</div>
-				<div class="row">
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-				</div>
-				<div class="row">
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-					<div class="cell"></div>
-				</div>
-				
 				<!-- <div class="image-wrapper"></div> -->
 			</div>
 		</div>
