@@ -6,13 +6,13 @@
 
 html {
 	height: 100%;
-	background: url("../img/bg_field.jpg") no-repeat;
+	background: url("../img/background.jpg") no-repeat;
 	background-size: cover;
 	font-family: sans-serif;
 }
 
 .wrapper {
-	width: 840px;	
+	width: 840px;
 	margin: 0 auto;
 	display: flex;
 	flex-direction: column;
@@ -33,6 +33,13 @@ header .wrapper {
 	background-size: 100% 100%;
 	border-radius: 10px;
 	position: relative;
+}
+
+#temp {					/* ///////////////////// */
+	height: 110px;
+	width: 100px;
+	border: 2px solid black;
+	margin-left: 50px;
 }
 
 #play {
@@ -73,26 +80,26 @@ header .wrapper {
 	font-size: 20px;
 }
 
-.wallnut-card, .pea-shooter-card, .sunflower-card {
+#wallnut_card, #pea_shooter_card, #sunflower_card {
 	width: 72px;
 	height: 88px;
 	position: absolute;
 	top: 10px;
 }
 
-.wallnut-card {
+#wallnut_card {
 	background: url("../img/wallnut-card.png") no-repeat;
 	background-size: 100% 100%;
 	left: 128px;
 }
 
-.pea-shooter-card {
+#pea_shooter_card {
 	background: url("../img/pea-shooter-card.png") no-repeat;
 	background-size: 100% 100%;
 	left: 216px;
 }
 
-.sunflower-card {
+#sunflower_card {
 	background: url("../img/sunflower-card.png") no-repeat;
 	background-size: 100% 100%;
 	left: 305px;
@@ -110,7 +117,7 @@ header .wrapper {
 
 .row {
 	display: grid;
-	grid-template-columns: repeat(8, 105px);	
+	grid-template-columns: repeat(8, 105px);
 }
 
 .row:nth-child(odd) {
@@ -123,8 +130,8 @@ header .wrapper {
 	background-size: 210px;
 }
 
-.cell {
-	border: 1px solid black;
+.cell:hover {
+	border: 1px solid rgb(210, 95, 14);
 }
 
 .image {
@@ -141,7 +148,7 @@ header .wrapper {
 	position: relative;
 	left: calc(100% - 18%);
 }
-
+/* 
 .image-zombie-strong {
 	background: url("../img/zombie-strong.gif") no-repeat center;
 	background-size: contain;
@@ -155,13 +162,17 @@ header .wrapper {
 .image-zombie-dead {
 	background: url("../img/zombie-dead.gif") no-repeat center;
 	background-size: contain;
-}
+} */
 
 .hidden {
 	visibility: hidden;
 }
 
-/* .percent {
+.not-displayed {
+	display: none !important;
+}
+
+.hp-bar {
 	width: 30%;
 	height: 7%;
 	margin: 7px auto;
@@ -170,4 +181,4 @@ header .wrapper {
 	color: #0c0c0c;
 	text-align: center;
 	padding-top: 0.8%;
-} */
+}
