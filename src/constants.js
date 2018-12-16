@@ -1,14 +1,9 @@
-import {Sunflower} from './Sunflower';
+export const ENTITY_DATA = {
+	MAX_HEALTH: 100
+}
 
 export const ZOMBIE_DATA = {
-	MAX_HEALTH: 100,
 	HIT_DAMAGE: 10,
-	/* DELETE_TIMEOUT: 3500, */
-	/* IMAGES: ['ballon.gif', 'michael.gif', 'strong.gif', 'default.gif'],
-	IMAGES: [{
-		live: 'michael.gif',
-		die: 'michael-die.gif'
-	}], */
 	STEP: 1
 };
 
@@ -18,13 +13,15 @@ export const SETTINGS = {
 	INTERVAL: 50
 }
 
-export const MENU = {
+export const PLANT_DATA = {
 	INITIAL_POINTS: 50,
 	SUNFLOWER_POINTS: 25,
+	SUNFLOWER_CARD_ID: 'sunflower_card',
+	SUNFLOWER_CSS: 'sunflower-img',
 	PEA_SHOOTER_POINTS: 100,
-	WALLNUT_POINTS: 150
-}
-
-export const PLANT_DATA = {
-	sunflower_card: Sunflower
+	PEA_SHOOTER_CARD_ID: 'pea_shooter_card',
+	PEA_SHOOTER_CSS: 'pea-shooter-img',
+	WALLNUT_POINTS: 150,
+	WALLNUT_CARD_ID: 'wallnut_card',
+	WALLNUT_CSS: 'wallnut-img'
 }

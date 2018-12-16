@@ -93,16 +93,31 @@ header .wrapper {
 	left: 128px;
 }
 
+.wallnut-img {
+	background: url("../img/wallnut.gif") no-repeat center;
+	background-size: contain;
+}
+
 #pea_shooter_card {
 	background: url("../img/pea-shooter-card.png") no-repeat;
 	background-size: 100% 100%;
 	left: 216px;
 }
 
+.pea-shooter-img {
+	background: url("../img/pea-shooter.gif") no-repeat center;
+	background-size: contain;
+}
+
 #sunflower_card {
 	background: url("../img/sunflower-card.png") no-repeat;
 	background-size: 100% 100%;
 	left: 305px;
+}
+
+.sunflower-img {
+	background: url("../img/sunflower.gif") no-repeat center;
+	background-size: contain;
 }
 
 /*///////////grid////////////*/
@@ -173,12 +188,10 @@ header .wrapper {
 }
 
 .hp-bar {
-	width: 30%;
-	height: 7%;
+	width: 85%;
+	height: 5%;
 	margin: 7px auto;
-	border: 1.5px solid #cacacc;
-	background-color: #eaeaec;
-	color: #0c0c0c;
-	text-align: center;
+	border: 1px solid rgb(112, 30, 0);
+	background-color: rgb(210, 95, 14);
 	padding-top: 0.8%;
 }

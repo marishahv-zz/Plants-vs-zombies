@@ -1,35 +1,33 @@
+import {ENTITY_DATA} from './constants';
+
 export class AbstractEntity {
 	constructor(hp, container, events, imageCSS) {
-		this.hp = hp || constants.ZOMBIE_MAX_HEALTH;
+		this.hp = hp || ENTITY_DATA.MAX_HEALTH;
 		this.container = container;
 		this.events = events;
+		this.imageCSS = imageCSS;
+		this.hpDiv = null;
+		this.hpDivInitialWidth = 0;
+		this.entityDiv = null;
 	}
 
 	create() {
-		let hpDiv = document.createElement('div');
-		hpDiv.className = 'percent';
-		container.appendChild(hpDiv);
+		this.hpDiv = document.createElement('div');
+		this.hpDiv.className = 'hp-bar';
+		this.container.appendChild(this.hpDiv);
 
-		let hpDivInitialWidth = hpDiv.offsetWidth;
-		that.renderHp();
+		this.hpDivInitialWidth = this.hpDiv.offsetWidth;
+		this.renderHp();
 
-		zombieDiv = document.createElement('div');
-		zombieDiv.className = 'image';
-		zombieDiv.classList.add(imageCSS);
-		container.appendChild(zombieDiv);
+		this.entityDiv = document.createElement('div');
+		this.entityDiv.className = 'image';
+		this.entityDiv.classList.add(this.imageCSS);
+		this.container.appendChild(this.entityDiv);
 	}
 
 	renderHp() {
-		let carrentWidth = hpDivInitialWidth * this.health / 100;
+		let carrentWidth = this.hpDivInitialWidth * this.health / 100;
 
-		hpDiv.style.width = carrentWidth + 'px';
+		this.hpDiv.style.width = carrentWidth + 'px';
 	}
-
-	/* getDamaged(value){
-		this.hp -= value;
-	} */
-
-	/* get heroState(){
-		return (`имя ${this.name} жизни ${this.hp}`);
-	} */
 }

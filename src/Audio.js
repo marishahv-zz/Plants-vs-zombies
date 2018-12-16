@@ -13,27 +13,6 @@ export class Audio {
 		this.audioIconMute.addEventListener('click', this.toggleMusic.bind(this));
 	}
 
-	/* play() {
-		this.audioElement.play();
-		this.changeIcon();
-		this.isPlaying = true;
-	}
-
-	stop() {
-		this.audioElement.pause();
-		this.changeIcon();
-		this.isPlaying = false;
-		//audio.currentTime = 0.0;
-	} */
-
-	/* toggle() {
-		if (this.isPlaying) {
-			this.stop();
-		} else {
-			this.play();
-		}
-	} */
-
 	toggleMusic() {
 		if (this.isPlaying) {
 			this.audioElement.pause();
