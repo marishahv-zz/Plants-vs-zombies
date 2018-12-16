@@ -1,6 +1,9 @@
-import { SETTINGS, PLANT_DATA } from "./constants";
+import { SETTINGS, PLANT_DATA, ENTITY_DATA } from "./constants";
 import {Audio} from './Audio';
 import { Menu } from "./Menu";
+import { Sunflower } from './Sunflower';
+import { Wallnut } from './Wallnut';
+import { Peashooter } from './Peashooter';
 
 export class Game {
 	constructor() {
@@ -11,10 +14,7 @@ export class Game {
 	}
 
 	init() {
-		//this.playBtn.addEventListener('click', this.start.bind(this));
 		this.renderFieldLayout();
-
-		//this.sunflower = new PLANT_DATA.sunflower_card_id();
 	}
 
 	renderFieldLayout() {
@@ -38,8 +38,18 @@ export class Game {
 
 	drop(ev) {
 		ev.preventDefault();
-		let data = ev.dataTransfer.getData("text");
-		//ev.target.appendChild(document.getElementById(data));
+		let plantCardID = ev.dataTransfer.getData("id");
+		let plant; 
+
+		if (plantCardID == PLANT_DATA.SUNFLOWER_CARD_ID) {
+			plant = new Sunflower(ENTITY_DATA.MAX_HEALTH, ev.target);
+		} else if (plantCardID == PLANT_DATA.WALLNUT_CARD_ID) {
+			plant = new Wallnut(ENTITY_DATA.MAX_HEALTH, ev.target);
+		} else if (plantCardID == PLANT_DATA.PEA_SHOOTER_CARD_ID) {
+			plant = new Peashooter(ENTITY_DATA.MAX_HEALTH, ev.target);
+		}
+		
+		plant.create();
 	}
 
 	allowDrop(ev) {
