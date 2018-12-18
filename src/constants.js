@@ -1,10 +1,18 @@
+import { Michael } from "./Michael";
+import { Strong } from "./Strong";
+
 export const ENTITY_DATA = {
 	MAX_HEALTH: 100
 }
 
 export const ZOMBIE_DATA = {
 	HIT_DAMAGE: 10,
-	STEP: 1
+	STEP: 1,
+	MICHAEL_CSS: 'image-zombie-michael',
+	MICHAEL_DIE_CSS: 'image-zombie-michael-die',
+	STRONG_CSS: 'image-zombie-strong',
+	STRONG_DIE_CSS: 'image-zombie-strong-die',
+	TYPE: [Michael, Strong]
 };
 
 export const SETTINGS = {
@@ -23,5 +31,8 @@ export const PLANT_DATA = {
 	PEA_SHOOTER_CSS: 'pea-shooter-img',
 	WALLNUT_POINTS: 150,
 	WALLNUT_CARD_ID: 'wallnut_card',
-	WALLNUT_CSS: 'wallnut-img'
+	WALLNUT_CSS: 'wallnut-img',
+	PEA_SPEED: 4,
+	PEA_OFFSET_TOP: 36,
+	PEA_OFFSET_LEFT: 82
 }

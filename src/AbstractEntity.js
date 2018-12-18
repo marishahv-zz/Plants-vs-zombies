@@ -30,4 +30,9 @@ export class AbstractEntity {
 
 		this.hpDiv.style.width = carrentWidth + 'px';
 	}
+
+	hit(damage) {
+		this.health -= damage;
+		this.renderHp();
+	}
 }

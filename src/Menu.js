@@ -19,6 +19,22 @@ export class Menu {
 	}
 
 	drag(ev) {
-		ev.dataTransfer.setData("id", ev.target.id);
+		if (!ev.target.classList.contains('disabled')) {
+			ev.dataTransfer.setData("id", ev.target.id);
+		} else {
+			ev.preventDefault();
+		}
+	}
+
+	enable() {
+		this.wallnutCardDiv.classList.remove('disabled');
+		this.peaShooterCardDiv.classList.remove('disabled');
+		this.sunflowerCardDiv.classList.remove('disabled');
+	}
+
+	disable() {
+		this.wallnutCardDiv.classList.add('disabled');
+		this.peaShooterCardDiv.classList.add('disabled');
+		this.sunflowerCardDiv.classList.add('disabled');
 	}
 }

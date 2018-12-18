@@ -133,6 +133,7 @@ header .wrapper {
 .row {
 	display: grid;
 	grid-template-columns: repeat(8, 105px);
+	position: relative;
 }
 
 .row:nth-child(odd) {
@@ -154,7 +155,7 @@ header .wrapper {
 	margin-bottom: 10px;
 }
 
-.image-wrapper {
+/* .image-wrapper {
 	width: 18%;
 	min-width: 115px;
 	height: 100%;
@@ -162,22 +163,27 @@ header .wrapper {
 	flex-direction: column;
 	position: relative;
 	left: calc(100% - 18%);
-}
-/* 
-.image-zombie-strong {
-	background: url("../img/zombie-strong.gif") no-repeat center;
-	background-size: contain;
-}
-
-.image-zombie-mad {
-	background: url("../img/zombie-mad.gif") no-repeat center;
-	background-size: contain;
-}
-
-.image-zombie-dead {
-	background: url("../img/zombie-dead.gif") no-repeat center;
-	background-size: contain;
 } */
+
+.image-zombie-strong {
+	background: url("../img/strong.gif") no-repeat center;
+	background-size: contain;
+}
+
+.image-zombie-michael {
+	background: url("../img/michael.gif") no-repeat center;
+	background-size: contain;
+}
+ 
+.image-zombie-strong-die {
+	background: url("../img/strong-die.gif") no-repeat center;
+	background-size: contain;
+} 
+
+.image-zombie-michael-die {
+	background: url("../img/michael-die.gif") no-repeat center;
+	background-size: contain;
+} 
 
 .hidden {
 	visibility: hidden;
@@ -187,6 +193,10 @@ header .wrapper {
 	display: none !important;
 }
 
+.disabled {
+	opacity: 0.4;
+}
+
 .hp-bar {
 	width: 85%;
 	height: 5%;
@@ -194,4 +204,12 @@ header .wrapper {
 	border: 1px solid rgb(112, 30, 0);
 	background-color: rgb(210, 95, 14);
 	padding-top: 0.8%;
+}
+
+.pea {
+	background: url("../img/pea-bullet.png") no-repeat center;
+	background-size: contain;
+	height: 25px;
+	width: 25px;
+	position: absolute;
 }
