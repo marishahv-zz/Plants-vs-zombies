@@ -8,6 +8,7 @@ module.exports = {
     path: path.resolve(__dirname, 'build'),
     filename: 'bundle.js'
   },
+  devtool: 'source-map',
   module: {
     rules: [
       {
@@ -16,13 +17,8 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            /* presets: ['env'], */
 			presets: ['@babel/preset-env'],
-            /* plugins: [
-              ["transform-runtime", {
-                "regenerator": true,
-              }] */
-			  plugins: [
+			plugins: [
               ["@babel/plugin-transform-runtime", {
                 "regenerator": true,
               }]

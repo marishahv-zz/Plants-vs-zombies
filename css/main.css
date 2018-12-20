@@ -145,6 +145,14 @@ header .wrapper {
 	background: url("../img/grass-even.png");
 	background-size: 210px;
 }
+ 
+/*.cell {
+	position: relative;
+} */
+
+/* .zombie-initial-container {
+	position: relative;
+} */
 
 .cell:hover {
 	border: 1px solid rgb(210, 95, 14);
@@ -152,18 +160,16 @@ header .wrapper {
 
 .image {
 	height: 80%;
-	margin-bottom: 10px;
 }
 
-/* .image-wrapper {
-	width: 18%;
-	min-width: 115px;
+.zombie-wrapper {
+	/* width: 100%; */
+	width: 105px;
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-	position: relative;
-	left: calc(100% - 18%);
-} */
+	position: absolute;
+}
 
 .image-zombie-strong {
 	background: url("../img/strong.gif") no-repeat center;
@@ -194,11 +200,11 @@ header .wrapper {
 }
 
 .disabled {
-	opacity: 0.4;
+	opacity: 0.5;
 }
 
 .hp-bar {
-	width: 85%;
+	width: 70%;
 	height: 5%;
 	margin: 7px auto;
 	border: 1px solid rgb(112, 30, 0);

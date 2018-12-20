@@ -8,9 +8,6 @@ export class Peashooter extends AbstractEntity {
 	}
 
 	shoot() {
-		let initialPosition = this.container.offsetLeft;
-		let pea = new Pea(this.container, initialPosition);
-		
-		pea.move();
+		return new Pea(this.container);
 	}
 }

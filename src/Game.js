@@ -1,11 +1,12 @@
 import random from 'lodash/random';
-import { SETTINGS, PLANT_DATA, ENTITY_DATA, ZOMBIE_DATA } from "./constants";
+import { SETTINGS, PLANT_DATA, ZOMBIE_DATA } from "./constants";
 import {Audio} from './Audio';
 import { Menu } from "./Menu";
 import { Sunflower } from './Sunflower';
 import { Wallnut } from './Wallnut';
 import { Peashooter } from './Peashooter';
 import { Engine } from './Engine';
+import { Utils } from './Utils';
 
 export class Game {
 	constructor() {
@@ -34,9 +35,15 @@ export class Game {
 
 				cellDiv.className = 'cell';
 				rowDiv.appendChild(cellDiv);
+				
+				if (j !== SETTINGS.CELL_COUNT - 1) {
+					cellDiv.addEventListener('drop', this.drop.bind(this));
+					cellDiv.addEventListener('dragover', this.allowDrop.bind(this));
+				}
 
-				cellDiv.addEventListener('drop', this.drop.bind(this));
-				cellDiv.addEventListener('dragover', this.allowDrop.bind(this));
+				if (j == SETTINGS.CELL_COUNT - 1) {
+					cellDiv.classList.add('zombie-initial-container');
+				}
 			}
 
 			container.appendChild(rowDiv);
@@ -44,29 +51,48 @@ export class Game {
 	}
 
 	start() {
-		let zombie = {};
-		zombie.type = ZOMBIE_DATA.TYPE[random(1)];
+		if (!this.playBtn.classList.contains('disabled')) {
+			this.playBtn.classList.add('disabled');
+			this.menu.enable();
 
-		this.menu.enable(); 
-		//this.engine.create();
+			//await Utils.pause(2000);
+
+			let zombieInitialContainers = document.querySelectorAll('.zombie-initial-container');
+			this.engine.createZombie(zombieInitialContainers);
+
+			let rowWidth = document.querySelector('.row').clientWidth;
+			this.engine.animate(rowWidth);
+		}
 	}
 
 	drop(ev) {
 		ev.preventDefault();
 		
 		let plantCardID = ev.dataTransfer.getData("id");
-		let plant = {};
+		let plantData = {};
 
 		if (plantCardID == PLANT_DATA.SUNFLOWER_CARD_ID) {
-			plant.type = Sunflower;
+			plantData.type = Sunflower;
 		} else if (plantCardID == PLANT_DATA.WALLNUT_CARD_ID) {
-			plant.type = Wallnut;
+			plantData.type = Wallnut;
 		} else if (plantCardID == PLANT_DATA.PEA_SHOOTER_CARD_ID) {
-			plant.type = Peashooter;
+			plantData.type = Peashooter;
 		}
 
-		plant.container = ev.target;
-		this.engine.create(plant);
+		plantData.container = ev.target;
+		plantData.rowIndex = this.getRowIndex(ev.target);
+		this.engine.createPlant(plantData);
+	}
+
+	getRowIndex(cell) {
+		let rows = document.querySelectorAll('.row');
+		let index = false;
+
+		rows.forEach((row, rowIndex) => {
+			row.contains(cell) ? index = rowIndex : false;
+		});
+
+		return index;
 	}
 
 	allowDrop(ev) {

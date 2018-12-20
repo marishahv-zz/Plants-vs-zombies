@@ -16,7 +16,7 @@ export class AbstractEntity {
 		this.hpDiv.className = 'hp-bar';
 		this.container.appendChild(this.hpDiv);
 
-		this.hpDivInitialWidth = this.hpDiv.offsetWidth;
+		this.hpDivInitialWidth = this.hpDiv.clientWidth;
 		this.renderHp();
 
 		this.entityDiv = document.createElement('div');
@@ -26,13 +26,17 @@ export class AbstractEntity {
 	}
 
 	renderHp() {
-		let carrentWidth = this.hpDivInitialWidth * this.health / 100;
+		let carrentWidth = this.hpDivInitialWidth * this.hp / 100;
 
 		this.hpDiv.style.width = carrentWidth + 'px';
 	}
 
+	get health() {
+		return this.hp;
+	}
+
 	hit(damage) {
-		this.health -= damage;
+		this.hp -= damage;
 		this.renderHp();
 	}
 }
