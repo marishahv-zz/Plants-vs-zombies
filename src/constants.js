@@ -1,11 +1,8 @@
 import { Michael } from "./Michael";
 import { Strong } from "./Strong";
 
-export const ENTITY_DATA = {
-	MAX_HEALTH: 100
-}
-
 export const ZOMBIE_DATA = {
+	MAX_HEALTH: 100,
 	HIT_DAMAGE: 10,
 	STEP: 1,
 	MICHAEL_CSS: 'image-zombie-michael',
@@ -22,6 +19,7 @@ export const SETTINGS = {
 }
 
 export const PLANT_DATA = {
+	MAX_HEALTH: 100,
 	INITIAL_POINTS: 50,
 	SUNFLOWER_POINTS: 25,
 	SUNFLOWER_CARD_ID: 'sunflower_card',

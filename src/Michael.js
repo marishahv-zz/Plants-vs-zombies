@@ -1,18 +1,19 @@
-import { AbstractEntity } from './AbstractEntity';
 import { ZOMBIE_DATA } from './constants';
+import { Zombie } from './Zombie';
 
-export class Michael extends AbstractEntity {
+export class Michael extends Zombie {
 	constructor(hp, container, events) {
 		super(hp, container, events, ZOMBIE_DATA.MICHAEL_CSS);
 	}
 
 	get health() {
-		if (this.health < 50) {
-			this.health = 0;
+		let health = super.health();
+		if (health < 50) {
+			health = 0;
 
 			return 0;
 		} else {
-			return this.health;
+			return health;
 		}
 	}
 }

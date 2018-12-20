@@ -1,10 +1,11 @@
 import { PLANT_DATA, SETTINGS } from './constants';
 
 export class Pea {
-	constructor(initialContainer, initialPosition) {
-		this.position = initialPosition;
+	constructor(initialContainer) {
+		this.position = initialContainer.offsetLeft;
 		this.initialContainer = initialContainer;
 		this.peaDiv = this.create(initialContainer);
+		this.width = this.peaDiv.clientWidth; 
 	}
 
 	create() {
@@ -23,30 +24,7 @@ export class Pea {
 	}
 
 	move() {
-		let rowWidth = parseInt(getComputedStyle(this.initialContainer.parentNode).width);
-		let peaWidth = parseInt(getComputedStyle(this.peaDiv).width);
-		//let distance = rowWidth - peaWidth;
-		let id = setInterval(frame, SETTINGS.INTERVAL);
-		let that = this;
-
-		function frame() {
-			that.position += PLANT_DATA.PEA_SPEED;
-
-			if (that.position >= rowWidth - peaWidth) {
-				clearInterval(id);
-				that.delete();
-			} else {
-				that.peaDiv.style.left = that.position + 'px';
-			}
-
-			/* if (distance == 0 ) {
-				clearInterval(id);
-				that.delete();
-			} else if (that.health == 0) {
-				clearInterval(id);
-			} else {
-				container.style.left = distance + 'px';
-			} */
-		}
+		this.position += PLANT_DATA.PEA_SPEED;
+		this.peaDiv.style.left = this.position + 'px';
 	}
 }
