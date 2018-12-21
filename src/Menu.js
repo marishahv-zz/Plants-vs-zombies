@@ -14,6 +14,7 @@ export class Menu {
 		this.sunflowerCardDiv.addEventListener('dragstart', this.drag.bind(this));
 		this.wallnutCardDiv.addEventListener('dragstart', this.drag.bind(this));
 		this.peaShooterCardDiv.addEventListener('dragstart', this.drag.bind(this));
+		this.sunPointsDiv.addEventListener('selectstart', this.disableSelect.bind(this));
 
 		this.sunPointsDiv.textContent = PLANT_DATA.INITIAL_POINTS;
 	}
@@ -36,5 +37,9 @@ export class Menu {
 		this.wallnutCardDiv.classList.add('disabled');
 		this.peaShooterCardDiv.classList.add('disabled');
 		this.sunflowerCardDiv.classList.add('disabled');
+	}
+
+	disableSelect(ev) {
+		ev.preventDefault();
 	}
 }

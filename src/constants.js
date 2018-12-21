@@ -1,10 +1,16 @@
 import { Michael } from "./Michael";
 import { Strong } from "./Strong";
 
-export const ZOMBIE_DATA = {
+export const ENTITY_DATA = {
 	MAX_HEALTH: 100,
 	HIT_DAMAGE: 10,
-	STEP: 1,
+	HIT_DISTANCE: 90
+};
+
+export const ZOMBIE_DATA = {
+/* 	MAX_HEALTH: 100,
+	HIT_DAMAGE: 10,
+ */	STEP: 1,
 	MICHAEL_CSS: 'image-zombie-michael',
 	MICHAEL_DIE_CSS: 'image-zombie-michael-die',
 	STRONG_CSS: 'image-zombie-strong',
@@ -15,11 +21,11 @@ export const ZOMBIE_DATA = {
 export const SETTINGS = {
 	ROW_COUNT: 5,
 	CELL_COUNT: 8,
-	INTERVAL: 50
+	INTERVAL: 50, 
 }
 
 export const PLANT_DATA = {
-	MAX_HEALTH: 100,
+	/* MAX_HEALTH: 100, */
 	INITIAL_POINTS: 50,
 	SUNFLOWER_POINTS: 25,
 	SUNFLOWER_CARD_ID: 'sunflower_card',
@@ -32,5 +38,7 @@ export const PLANT_DATA = {
 	WALLNUT_CSS: 'wallnut-img',
 	PEA_SPEED: 4,
 	PEA_OFFSET_TOP: 36,
-	PEA_OFFSET_LEFT: 82
+	PEA_OFFSET_LEFT: 82,
+	SHOOT_TIMEOUT: 1500,
+	DAMAGE_TIMEOUT: 500
 }

@@ -19,6 +19,8 @@ export class Game {
 
 	init() {
 		this.playBtn.addEventListener('click', this.start.bind(this));
+		//this.engine.PlantsEvents.onKilled();
+		
 
 		this.renderFieldLayout();
 	}
@@ -54,8 +56,6 @@ export class Game {
 		if (!this.playBtn.classList.contains('disabled')) {
 			this.playBtn.classList.add('disabled');
 			this.menu.enable();
-
-			//await Utils.pause(2000);
 
 			let zombieInitialContainers = document.querySelectorAll('.zombie-initial-container');
 			this.engine.createZombie(zombieInitialContainers);
