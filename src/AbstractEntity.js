@@ -1,4 +1,5 @@
-import {ENTITY_DATA} from './constants';
+import { ENTITY_DATA } from './constants';
+import { Utils } from './Utils';
 
 export class AbstractEntity {
 	constructor(hp, container, events, imageCSS) {
@@ -9,6 +10,8 @@ export class AbstractEntity {
 		this.hpDiv = null;
 		this.hpDivInitialWidth = 0;
 		this.entityDiv = null;
+		this.position = container.offsetLeft;
+		this.isDamaged = false;
 	}
 
 	create() {
@@ -34,9 +37,22 @@ export class AbstractEntity {
 	get health() {
 		return this.hp;
 	}
-
+	
 	hit(damage) {
 		this.hp -= damage;
 		this.renderHp();
+	}
+
+	kill() {
+		this.hp = 0;
+		this.hpDiv.classList.add('hidden');
+	}
+
+	delete() {
+		while (this.container.firstChild) {
+			this.container.removeChild(this.container.firstChild);
+		}
+
+		//Utils.triggerEvent(this.events.onDeleted);
 	}
 }
