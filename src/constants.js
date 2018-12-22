@@ -4,13 +4,13 @@ import { Strong } from "./Strong";
 export const ENTITY_DATA = {
 	MAX_HEALTH: 100,
 	HIT_DAMAGE: 10,
-	HIT_DISTANCE: 90
 };
 
 export const ZOMBIE_DATA = {
-/* 	MAX_HEALTH: 100,
-	HIT_DAMAGE: 10,
- */	STEP: 1,
+	STEP: 1,
+	HIT_DISTANCE: 30,
+	CREATE_TIMEOUT: 5000,
+	DELETE_TIMEOUT: 1000,
 	MICHAEL_CSS: 'image-zombie-michael',
 	MICHAEL_DIE_CSS: 'image-zombie-michael-die',
 	STRONG_CSS: 'image-zombie-strong',
@@ -40,5 +40,6 @@ export const PLANT_DATA = {
 	PEA_OFFSET_TOP: 36,
 	PEA_OFFSET_LEFT: 82,
 	SHOOT_TIMEOUT: 1500,
-	DAMAGE_TIMEOUT: 500
+	DAMAGE_TIMEOUT: 500,
+	HIT_DISTANCE: 90
 }

@@ -1,11 +1,13 @@
 import { PLANT_DATA, SETTINGS } from './constants';
+import { Utils } from './Utils';
 
 export class Pea {
 	constructor(initialContainer) {
 		this.position = initialContainer.offsetLeft;
 		this.initialContainer = initialContainer;
 		this.peaDiv = this.create(initialContainer);
-		this.width = this.peaDiv.clientWidth; 
+		this.width = this.peaDiv.clientWidth;
+		this.event;
 	}
 
 	create() {
@@ -21,6 +23,8 @@ export class Pea {
 
 	delete() {
 		this.peaDiv.remove();
+
+		Utils.triggerEvent(this.event.onDeletedEvt);
 	}
 
 	move() {
