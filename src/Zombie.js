@@ -3,15 +3,16 @@ import { ZOMBIE_DATA } from './constants'
 import { Utils } from './Utils';
 
 export class Zombie extends AbstractEntity {
-	constructor(hp, parentContainer, events, imageCSS, dieCSS) {
+	constructor(hp, parentContainer, imageCSS, dieCSS) {
 		let div = document.createElement('div');
 		div.className = 'zombie-wrapper';
 		parentContainer.appendChild(div);
 
-		super(hp, div, events, imageCSS);
+		super(hp, div, imageCSS);
 
 		this.zombieDiv = div;
 		this.dieCSS = dieCSS;
+		this.isDying = false;
 	}
 
 	move() {
@@ -20,10 +21,23 @@ export class Zombie extends AbstractEntity {
 	}
 
 	kill() {
+		let zombieImageDiv = this.zombieDiv.getElementsByClassName(this.imageCSS)[0];
+		zombieImageDiv.classList.remove(this.imageCSS);
 		super.kill();
-		this.zombieDiv.classList.remove(imageCSS);
-		this.zombieDiv.classList.add(dieCSS);
+	}
 
-		//Utils.triggerEvent(this.events.onKilled);
+	async die() {
+		let zombieImageDiv = this.zombieDiv.getElementsByClassName('image')[0];
+		zombieImageDiv.classList.add(this.dieCSS);
+		this.isDying = true;
+
+		await Utils.pause(ZOMBIE_DATA.DELETE_TIMEOUT);
+		this.delete();
+	}
+
+	delete() {
+		this.container.remove();
+
+		Utils.triggerEvent(this.event.onDeletedEvt);
 	}
 }

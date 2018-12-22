@@ -2920,18 +2920,17 @@ __webpack_require__.r(__webpack_exports__);
 var AbstractEntity =
 /*#__PURE__*/
 function () {
-  function AbstractEntity(hp, container, events, imageCSS) {
+  function AbstractEntity(hp, container, imageCSS) {
     _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, AbstractEntity);
 
     this.hp = hp || _constants__WEBPACK_IMPORTED_MODULE_2__["ENTITY_DATA"].MAX_HEALTH;
     this.container = container;
-    this.events = events;
     this.imageCSS = imageCSS;
-    this.hpDiv = null;
+    this.event;
+    this.hpDiv;
     this.hpDivInitialWidth = 0;
-    this.entityDiv = null;
+    this.entityDiv;
     this.position = container.offsetLeft;
-    this.isDamaged = false;
   }
 
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(AbstractEntity, [{
@@ -2964,14 +2963,7 @@ function () {
     value: function kill() {
       this.hp = 0;
       this.hpDiv.classList.add('hidden');
-    }
-  }, {
-    key: "delete",
-    value: function _delete() {
-      while (this.container.firstChild) {
-        this.container.removeChild(this.container.firstChild);
-      } //Utils.triggerEvent(this.events.onDeleted);
-
+      _Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].triggerEvent(this.event.onKilledEvt);
     }
   }, {
     key: "health",
@@ -3072,9 +3064,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lodash_pull__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lodash/pull */ "./node_modules/lodash/pull.js");
 /* harmony import */ var lodash_pull__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(lodash_pull__WEBPACK_IMPORTED_MODULE_7__);
 /* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Utils */ "./src/Utils.js");
-/* harmony import */ var _ZombieEvents__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ZombieEvents */ "./src/ZombieEvents.js");
-/* harmony import */ var _PlantsEvents__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PlantsEvents */ "./src/PlantsEvents.js");
-
+/* harmony import */ var _Event__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Event */ "./src/Event.js");
 
 
 
@@ -3094,9 +3084,7 @@ function () {
     this.zombies = this.create2DArray();
     this.plants = this.create2DArray();
     this.peas = this.create2DArray();
-    this.zombieEvents = new _ZombieEvents__WEBPACK_IMPORTED_MODULE_9__["ZombieEvents"](); // ??????????????????
-
-    this.PlantsEvents = new _PlantsEvents__WEBPACK_IMPORTED_MODULE_10__["PlantsEvents"](); // ??????????????????
+    this.fieldWidth;
   }
 
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3___default()(Engine, [{
@@ -3104,69 +3092,38 @@ function () {
     value: function () {
       var _createPlant = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()(
       /*#__PURE__*/
-      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2(plantData) {
-        var _this = this;
-
-        var plant, shootByPea;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(plantData) {
+        var event, plant;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context.prev = _context.next) {
               case 0:
-                plant = new plantData.type(_constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].MAX_HEALTH, plantData.container, this.events);
+                event = new _Event__WEBPACK_IMPORTED_MODULE_9__["Event"]();
+                plant = new plantData.type(_constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].MAX_HEALTH, plantData.container);
+                event.onKilled(plant.delete.bind(plant));
+                event.onDeleted(this.removeInstanceFromArr.bind(this, this.plants[plantData.rowIndex], plant));
+                event.onDeleted(this.deleteInstance.bind(this, plant));
+                plant.event = event;
                 plant.create();
                 this.plants[plantData.rowIndex].push(plant);
 
                 if (!(plant instanceof _Peashooter__WEBPACK_IMPORTED_MODULE_5__["Peashooter"])) {
-                  _context2.next = 8;
+                  _context.next = 12;
                   break;
                 }
 
-                shootByPea =
-                /*#__PURE__*/
-                function () {
-                  var _ref = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()(
-                  /*#__PURE__*/
-                  _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-                    var pea;
-                    return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
-                      while (1) {
-                        switch (_context.prev = _context.next) {
-                          case 0:
-                            pea = plant.shoot();
-
-                            _this.peas[plantData.rowIndex].push(pea);
-
-                            _context.next = 4;
-                            return _Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].pause(_constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].SHOOT_TIMEOUT);
-
-                          case 4:
-                            shootByPea();
-
-                          case 5:
-                          case "end":
-                            return _context.stop();
-                        }
-                      }
-                    }, _callee, this);
-                  }));
-
-                  return function shootByPea() {
-                    return _ref.apply(this, arguments);
-                  };
-                }();
-
-                _context2.next = 7;
+                _context.next = 11;
                 return _Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].pause(2000);
 
-              case 7:
-                shootByPea();
+              case 11:
+                this.shootByPea(plant, plantData.rowIndex);
 
-              case 8:
+              case 12:
               case "end":
-                return _context2.stop();
+                return _context.stop();
             }
           }
-        }, _callee2, this);
+        }, _callee, this);
       }));
 
       function createPlant(_x) {
@@ -3180,24 +3137,67 @@ function () {
     value: function () {
       var _createZombie = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()(
       /*#__PURE__*/
-      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3(containers) {
-        var type, index, container, zombie;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2(containers) {
+        var type, index, container, zombie, event;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
                 type = _constants__WEBPACK_IMPORTED_MODULE_4__["ZOMBIE_DATA"].TYPE[lodash_random__WEBPACK_IMPORTED_MODULE_6___default()(1)];
                 index = lodash_random__WEBPACK_IMPORTED_MODULE_6___default()(containers.length - 1);
                 container = containers[index];
-                zombie = new type(_constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].MAX_HEALTH, container, this.events); //hp, container, events,
-
+                zombie = new type(_constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].MAX_HEALTH, container);
+                event = new _Event__WEBPACK_IMPORTED_MODULE_9__["Event"]();
+                event.onKilled(zombie.die.bind(zombie));
+                event.onDeleted(this.removeInstanceFromArr.bind(this, this.zombies[index], zombie));
+                event.onDeleted(this.deleteInstance.bind(this, zombie));
+                zombie.event = event;
                 zombie.create();
                 this.zombies[index].push(zombie);
+                _context2.next = 13;
+                return _Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].pause(_constants__WEBPACK_IMPORTED_MODULE_4__["ZOMBIE_DATA"].CREATE_TIMEOUT);
+
+              case 13:
+                this.createZombie(containers);
+
+              case 14:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function createZombie(_x2) {
+        return _createZombie.apply(this, arguments);
+      }
+
+      return createZombie;
+    }()
+  }, {
+    key: "shootByPea",
+    value: function () {
+      var _shootByPea = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3(peashooter, rowIndex) {
+        var pea, event;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                pea = peashooter.shoot();
+                event = new _Event__WEBPACK_IMPORTED_MODULE_9__["Event"]();
+                event.onDeleted(this.removeInstanceFromArr.bind(this, this.peas[rowIndex], pea));
+                event.onDeleted(this.deleteInstance.bind(this, pea));
+                pea.event = event;
+                this.peas[rowIndex].push(pea);
                 _context3.next = 8;
-                return _Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].pause(5000);
+                return _Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].pause(_constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].SHOOT_TIMEOUT);
 
               case 8:
-                this.createZombie(containers);
+                if (peashooter.health > 0) {
+                  this.shootByPea(peashooter, rowIndex);
+                }
 
               case 9:
               case "end":
@@ -3207,11 +3207,11 @@ function () {
         }, _callee3, this);
       }));
 
-      function createZombie(_x2) {
-        return _createZombie.apply(this, arguments);
+      function shootByPea(_x3, _x4) {
+        return _shootByPea.apply(this, arguments);
       }
 
-      return createZombie;
+      return shootByPea;
     }()
   }, {
     key: "create2DArray",
@@ -3226,40 +3226,43 @@ function () {
     }
   }, {
     key: "animate",
-    value: function animate(rowWidth) {
-      var _this2 = this;
+    value: function animate() {
+      var _this = this;
 
       var frame = function frame() {
         that.zombies.forEach(function (row, rowIndex) {
           row.forEach(function (zombie) {
-            var nearestPlant = _this2.getNearestPlant(rowIndex);
+            var nearestPlant = _this.getNearest('plant', _this.plants[rowIndex]);
 
-            if (nearestPlant && zombie.position - nearestPlant.position <= _constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].HIT_DISTANCE) {
+            if (nearestPlant && zombie.position - nearestPlant.position <= _constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].HIT_DISTANCE) {
               if (!nearestPlant.isDamaged) {
                 nearestPlant.isDamaged = true;
 
-                _this2.hitPlant(nearestPlant);
+                _this.hitPlant(nearestPlant);
               }
-            } else {
+            } else if (!zombie.isDying) {
               zombie.move();
             }
 
             if (zombie.position <= 0) {
               clearInterval(id);
             }
-            /* else {
-            zombie.move();
-            } */
-
           });
         });
-        that.peas.forEach(function (row) {
+        that.peas.forEach(function (row, rowIndex) {
           row.forEach(function (pea) {
-            if (pea.position >= rowWidth - pea.width) {
+            var nearestZombie = _this.getNearest('zombie', _this.zombies[rowIndex]);
+
+            if (nearestZombie && nearestZombie.position - pea.position <= _constants__WEBPACK_IMPORTED_MODULE_4__["ZOMBIE_DATA"].HIT_DISTANCE) {
+              if (!nearestZombie.isDying) {
+                _this.hitZombie(nearestZombie);
+
+                pea.delete();
+              }
+            }
+
+            if (pea.position >= _this.fieldWidth - pea.width) {
               pea.delete();
-              lodash_pull__WEBPACK_IMPORTED_MODULE_7___default()(row, pea);
-              pea = null;
-              clearInterval(id);
             } else {
               pea.move();
             }
@@ -3296,7 +3299,6 @@ function () {
               case 5:
                 if (plant.health <= 0) {
                   plant.kill();
-                  plant.delete();
                 }
 
               case 6:
@@ -3307,28 +3309,50 @@ function () {
         }, _callee4, this);
       }));
 
-      function hitPlant(_x3) {
+      function hitPlant(_x5) {
         return _hitPlant.apply(this, arguments);
       }
 
       return hitPlant;
     }()
-    /* kill(entity) {
-    	entity.kill();
-    } */
-
   }, {
-    key: "getNearestPlant",
-    value: function getNearestPlant(rowIndex) {
-      var nearestPlant;
-      var position = 0;
-      this.plants[rowIndex].forEach(function (plant, index, plants) {
-        if (plant.position > position) {
-          position = plant.position;
-          nearestPlant = plant;
+    key: "hitZombie",
+    value: function hitZombie(zombie) {
+      zombie.hit(_constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].HIT_DAMAGE);
+
+      if (zombie.health <= 0) {
+        zombie.kill();
+      }
+    }
+  }, {
+    key: "getNearest",
+    value: function getNearest(instanceStr, instanceArr) {
+      var nearestInstance;
+      var position = instanceStr == 'plant' ? 0 : this.fieldWidth;
+      instanceArr.forEach(function (instance) {
+        if (instanceStr == 'plant') {
+          if (instance.position > position) {
+            position = instance.position;
+            nearestInstance = instance;
+          }
+        } else if (instanceStr == 'zombie') {
+          if (instance.position < position) {
+            position = instance.position;
+            nearestInstance = instance;
+          }
         }
       });
-      return nearestPlant;
+      return nearestInstance;
+    }
+  }, {
+    key: "deleteInstance",
+    value: function deleteInstance(instance) {
+      instance = null;
+    }
+  }, {
+    key: "removeInstanceFromArr",
+    value: function removeInstanceFromArr(arr, instance) {
+      lodash_pull__WEBPACK_IMPORTED_MODULE_7___default()(arr, instance);
     }
   }]);
 
@@ -3337,51 +3361,51 @@ function () {
 
 /***/ }),
 
-/***/ "./src/Events.js":
-/*!***********************!*\
-  !*** ./src/Events.js ***!
-  \***********************/
-/*! exports provided: Events */
+/***/ "./src/Event.js":
+/*!**********************!*\
+  !*** ./src/Event.js ***!
+  \**********************/
+/*! exports provided: Event */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Events", function() { return Events; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Event", function() { return Event; });
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
 /* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
 
 
-var Events =
+var Event =
 /*#__PURE__*/
 function () {
-  function Events() {
-    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Events);
+  function Event() {
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Event);
 
-    this.onCreated = [];
-    this.onKilled = [];
-    this.onDeleted = [];
+    this.onCreatedEvt = [];
+    this.onKilledEvt = [];
+    this.onDeletedEvt = [];
   }
 
-  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Events, [{
-    key: "onCreatedEvt",
-    value: function onCreatedEvt(callback) {
-      this.onCreated.push(callback);
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Event, [{
+    key: "onCreated",
+    value: function onCreated(callback) {
+      this.onCreatedEvt.push(callback);
     }
   }, {
-    key: "onKilledEvt",
-    value: function onKilledEvt(callback) {
-      this.onKilled.push(callback);
+    key: "onKilled",
+    value: function onKilled(callback) {
+      this.onKilledEvt.push(callback);
     }
   }, {
-    key: "onDeletedEvt",
-    value: function onDeletedEvt(callback) {
-      this.onDeleted.push(callback);
+    key: "onDeleted",
+    value: function onDeleted(callback) {
+      this.onDeletedEvt.push(callback);
     }
   }]);
 
-  return Events;
+  return Event;
 }();
 
 /***/ }),
@@ -3469,6 +3493,8 @@ function () {
 
         container.appendChild(rowDiv);
       }
+
+      this.engine.fieldWidth = container.clientWidth;
     }
   }, {
     key: "start",
@@ -3636,16 +3662,16 @@ var Michael =
 function (_Zombie) {
   _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default()(Michael, _Zombie);
 
-  function Michael(hp, container, events) {
+  function Michael(hp, container) {
     _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Michael);
 
-    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Michael).call(this, hp, container, events, _constants__WEBPACK_IMPORTED_MODULE_6__["ZOMBIE_DATA"].MICHAEL_CSS, _constants__WEBPACK_IMPORTED_MODULE_6__["ZOMBIE_DATA"].MICHAEL_DIE_CSS));
+    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Michael).call(this, hp, container, _constants__WEBPACK_IMPORTED_MODULE_6__["ZOMBIE_DATA"].MICHAEL_CSS, _constants__WEBPACK_IMPORTED_MODULE_6__["ZOMBIE_DATA"].MICHAEL_DIE_CSS)); //this.hp = super.hp < 50 ? 0 : super.hp;
   }
 
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Michael, [{
     key: "health",
     get: function get() {
-      var health = _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4___default()(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Michael.prototype), "health", this).call(this);
+      var health = _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4___default()(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Michael.prototype), "health", this);
 
       if (health < 50) {
         this.hp = 0;
@@ -3676,6 +3702,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
 /* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Utils */ "./src/Utils.js");
+
 
 
 
@@ -3689,6 +3717,7 @@ function () {
     this.initialContainer = initialContainer;
     this.peaDiv = this.create(initialContainer);
     this.width = this.peaDiv.clientWidth;
+    this.event;
   }
 
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Pea, [{
@@ -3706,6 +3735,7 @@ function () {
     key: "delete",
     value: function _delete() {
       this.peaDiv.remove();
+      _Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].triggerEvent(this.event.onDeletedEvt);
     }
   }, {
     key: "move",
@@ -3741,7 +3771,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
 /* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
-/* harmony import */ var _AbstractEntity__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./AbstractEntity */ "./src/AbstractEntity.js");
+/* harmony import */ var _Plant__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Plant */ "./src/Plant.js");
 /* harmony import */ var _Pea__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Pea */ "./src/Pea.js");
 
 
@@ -3753,13 +3783,13 @@ __webpack_require__.r(__webpack_exports__);
 
 var Peashooter =
 /*#__PURE__*/
-function (_AbstractEntity) {
-  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4___default()(Peashooter, _AbstractEntity);
+function (_Plant) {
+  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4___default()(Peashooter, _Plant);
 
-  function Peashooter(hp, container, events) {
+  function Peashooter(hp, container) {
     _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Peashooter);
 
-    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Peashooter).call(this, hp, container, events, _constants__WEBPACK_IMPORTED_MODULE_5__["PLANT_DATA"].PEA_SHOOTER_CSS));
+    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Peashooter).call(this, hp, container, _constants__WEBPACK_IMPORTED_MODULE_5__["PLANT_DATA"].PEA_SHOOTER_CSS));
   }
 
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Peashooter, [{
@@ -3770,47 +3800,67 @@ function (_AbstractEntity) {
   }]);
 
   return Peashooter;
-}(_AbstractEntity__WEBPACK_IMPORTED_MODULE_6__["AbstractEntity"]);
+}(_Plant__WEBPACK_IMPORTED_MODULE_6__["Plant"]);
 
 /***/ }),
 
-/***/ "./src/PlantsEvents.js":
-/*!*****************************!*\
-  !*** ./src/PlantsEvents.js ***!
-  \*****************************/
-/*! exports provided: PlantsEvents */
+/***/ "./src/Plant.js":
+/*!**********************!*\
+  !*** ./src/Plant.js ***!
+  \**********************/
+/*! exports provided: Plant */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlantsEvents", function() { return PlantsEvents; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Plant", function() { return Plant; });
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/getPrototypeOf.js");
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _Events__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Events */ "./src/Events.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/getPrototypeOf.js");
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Utils */ "./src/Utils.js");
+/* harmony import */ var _AbstractEntity__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./AbstractEntity */ "./src/AbstractEntity.js");
 
 
 
 
 
-var PlantsEvents =
+
+
+var Plant =
 /*#__PURE__*/
-function (_Events) {
-  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3___default()(PlantsEvents, _Events);
+function (_AbstractEntity) {
+  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4___default()(Plant, _AbstractEntity);
 
-  function PlantsEvents() {
-    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, PlantsEvents);
+  function Plant(hp, container, imageCSS) {
+    var _this;
 
-    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2___default()(PlantsEvents).call(this));
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Plant);
+
+    _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Plant).call(this, hp, container, imageCSS));
+    _this.isDamaged = false;
+    return _this;
   }
 
-  return PlantsEvents;
-}(_Events__WEBPACK_IMPORTED_MODULE_4__["Events"]);
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Plant, [{
+    key: "delete",
+    value: function _delete() {
+      while (this.container.firstChild) {
+        this.container.removeChild(this.container.firstChild);
+      }
+
+      _Utils__WEBPACK_IMPORTED_MODULE_5__["Utils"].triggerEvent(this.event.onDeletedEvt);
+    }
+  }]);
+
+  return Plant;
+}(_AbstractEntity__WEBPACK_IMPORTED_MODULE_6__["AbstractEntity"]);
 
 /***/ }),
 
@@ -3826,20 +3876,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Strong", function() { return Strong; });
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/getPrototypeOf.js");
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/get */ "./node_modules/@babel/runtime/helpers/get.js");
-/* harmony import */ var _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
-/* harmony import */ var _Zombie__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Zombie */ "./src/Zombie.js");
-
-
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/getPrototypeOf.js");
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _Zombie__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Zombie */ "./src/Zombie.js");
 
 
 
@@ -3849,23 +3893,20 @@ __webpack_require__.r(__webpack_exports__);
 var Strong =
 /*#__PURE__*/
 function (_Zombie) {
-  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default()(Strong, _Zombie);
+  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3___default()(Strong, _Zombie);
 
-  function Strong(hp, container, events) {
+  function Strong(hp, container) {
     _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Strong);
 
-    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Strong).call(this, hp, container, events, _constants__WEBPACK_IMPORTED_MODULE_6__["ZOMBIE_DATA"].STRONG_CSS, _constants__WEBPACK_IMPORTED_MODULE_6__["ZOMBIE_DATA"].STRONG_DIE_CSS));
+    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2___default()(Strong).call(this, hp, container, _constants__WEBPACK_IMPORTED_MODULE_4__["ZOMBIE_DATA"].STRONG_CSS, _constants__WEBPACK_IMPORTED_MODULE_4__["ZOMBIE_DATA"].STRONG_DIE_CSS));
   }
+  /* hit(damage) {
+  	super.hit(damage / 2);
+  } */
 
-  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Strong, [{
-    key: "hit",
-    value: function hit(damage) {
-      _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4___default()(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Strong.prototype), "hit", this).call(this, damage / 2);
-    }
-  }]);
 
   return Strong;
-}(_Zombie__WEBPACK_IMPORTED_MODULE_7__["Zombie"]);
+}(_Zombie__WEBPACK_IMPORTED_MODULE_5__["Zombie"]);
 
 /***/ }),
 
@@ -3888,7 +3929,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
 /* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
-/* harmony import */ var _AbstractEntity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./AbstractEntity */ "./src/AbstractEntity.js");
+/* harmony import */ var _Plant__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Plant */ "./src/Plant.js");
 
 
 
@@ -3897,17 +3938,17 @@ __webpack_require__.r(__webpack_exports__);
 
 var Sunflower =
 /*#__PURE__*/
-function (_AbstractEntity) {
-  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3___default()(Sunflower, _AbstractEntity);
+function (_Plant) {
+  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3___default()(Sunflower, _Plant);
 
-  function Sunflower(hp, container, events) {
+  function Sunflower(hp, container) {
     _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Sunflower);
 
-    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2___default()(Sunflower).call(this, hp, container, events, _constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].SUNFLOWER_CSS));
+    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2___default()(Sunflower).call(this, hp, container, _constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].SUNFLOWER_CSS));
   }
 
   return Sunflower;
-}(_AbstractEntity__WEBPACK_IMPORTED_MODULE_5__["AbstractEntity"]);
+}(_Plant__WEBPACK_IMPORTED_MODULE_5__["Plant"]);
 
 /***/ }),
 
@@ -3995,14 +4036,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Wallnut", function() { return Wallnut; });
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/getPrototypeOf.js");
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
-/* harmony import */ var _AbstractEntity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./AbstractEntity */ "./src/AbstractEntity.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/getPrototypeOf.js");
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/get */ "./node_modules/@babel/runtime/helpers/get.js");
+/* harmony import */ var _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _Plant__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Plant */ "./src/Plant.js");
+
+
 
 
 
@@ -4011,17 +4058,24 @@ __webpack_require__.r(__webpack_exports__);
 
 var Wallnut =
 /*#__PURE__*/
-function (_AbstractEntity) {
-  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3___default()(Wallnut, _AbstractEntity);
+function (_Plant) {
+  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default()(Wallnut, _Plant);
 
-  function Wallnut(hp, container, events) {
+  function Wallnut(hp, container) {
     _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Wallnut);
 
-    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2___default()(Wallnut).call(this, hp, container, events, _constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].WALLNUT_CSS));
+    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Wallnut).call(this, hp, container, _constants__WEBPACK_IMPORTED_MODULE_6__["PLANT_DATA"].WALLNUT_CSS));
   }
 
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Wallnut, [{
+    key: "hit",
+    value: function hit(damage) {
+      _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4___default()(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Wallnut.prototype), "hit", this).call(this, damage / 2);
+    }
+  }]);
+
   return Wallnut;
-}(_AbstractEntity__WEBPACK_IMPORTED_MODULE_5__["AbstractEntity"]);
+}(_Plant__WEBPACK_IMPORTED_MODULE_7__["Plant"]);
 
 /***/ }),
 
@@ -4035,21 +4089,27 @@ function (_AbstractEntity) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Zombie", function() { return Zombie; });
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/getPrototypeOf.js");
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/get */ "./node_modules/@babel/runtime/helpers/get.js");
-/* harmony import */ var _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _AbstractEntity__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./AbstractEntity */ "./src/AbstractEntity.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
-/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Utils */ "./src/Utils.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/getPrototypeOf.js");
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @babel/runtime/helpers/get */ "./node_modules/@babel/runtime/helpers/get.js");
+/* harmony import */ var _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _AbstractEntity__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./AbstractEntity */ "./src/AbstractEntity.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Utils */ "./src/Utils.js");
+
+
 
 
 
@@ -4062,80 +4122,81 @@ __webpack_require__.r(__webpack_exports__);
 var Zombie =
 /*#__PURE__*/
 function (_AbstractEntity) {
-  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default()(Zombie, _AbstractEntity);
+  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_7___default()(Zombie, _AbstractEntity);
 
-  function Zombie(hp, parentContainer, events, imageCSS, dieCSS) {
+  function Zombie(hp, parentContainer, imageCSS, dieCSS) {
     var _this;
 
-    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Zombie);
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2___default()(this, Zombie);
 
     var div = document.createElement('div');
     div.className = 'zombie-wrapper';
     parentContainer.appendChild(div);
-    _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Zombie).call(this, hp, div, events, imageCSS));
+    _this = _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_4___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_5___default()(Zombie).call(this, hp, div, imageCSS));
     _this.zombieDiv = div;
     _this.dieCSS = dieCSS;
+    _this.isDying = false;
     return _this;
   }
 
-  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Zombie, [{
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3___default()(Zombie, [{
     key: "move",
     value: function move() {
-      this.position -= _constants__WEBPACK_IMPORTED_MODULE_7__["ZOMBIE_DATA"].STEP;
+      this.position -= _constants__WEBPACK_IMPORTED_MODULE_9__["ZOMBIE_DATA"].STEP;
       this.zombieDiv.style.left = this.position + 'px';
     }
   }, {
     key: "kill",
     value: function kill() {
-      _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4___default()(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Zombie.prototype), "kill", this).call(this);
+      var zombieImageDiv = this.zombieDiv.getElementsByClassName(this.imageCSS)[0];
+      zombieImageDiv.classList.remove(this.imageCSS);
 
-      this.zombieDiv.classList.remove(imageCSS);
-      this.zombieDiv.classList.add(dieCSS); //Utils.triggerEvent(this.events.onKilled);
+      _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_6___default()(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_5___default()(Zombie.prototype), "kill", this).call(this);
+    }
+  }, {
+    key: "die",
+    value: function () {
+      var _die = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        var zombieImageDiv;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                zombieImageDiv = this.zombieDiv.getElementsByClassName('image')[0];
+                zombieImageDiv.classList.add(this.dieCSS);
+                this.isDying = true;
+                _context.next = 5;
+                return _Utils__WEBPACK_IMPORTED_MODULE_10__["Utils"].pause(_constants__WEBPACK_IMPORTED_MODULE_9__["ZOMBIE_DATA"].DELETE_TIMEOUT);
+
+              case 5:
+                this.delete();
+
+              case 6:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function die() {
+        return _die.apply(this, arguments);
+      }
+
+      return die;
+    }()
+  }, {
+    key: "delete",
+    value: function _delete() {
+      this.container.remove();
+      _Utils__WEBPACK_IMPORTED_MODULE_10__["Utils"].triggerEvent(this.event.onDeletedEvt);
     }
   }]);
 
   return Zombie;
-}(_AbstractEntity__WEBPACK_IMPORTED_MODULE_6__["AbstractEntity"]);
-
-/***/ }),
-
-/***/ "./src/ZombieEvents.js":
-/*!*****************************!*\
-  !*** ./src/ZombieEvents.js ***!
-  \*****************************/
-/*! exports provided: ZombieEvents */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ZombieEvents", function() { return ZombieEvents; });
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/possibleConstructorReturn.js");
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/getPrototypeOf.js");
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _Events__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Events */ "./src/Events.js");
-
-
-
-
-
-var ZombieEvents =
-/*#__PURE__*/
-function (_Events) {
-  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_3___default()(ZombieEvents, _Events);
-
-  function ZombieEvents() {
-    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, ZombieEvents);
-
-    return _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1___default()(this, _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2___default()(ZombieEvents).call(this));
-  }
-
-  return ZombieEvents;
-}(_Events__WEBPACK_IMPORTED_MODULE_4__["Events"]);
+}(_AbstractEntity__WEBPACK_IMPORTED_MODULE_8__["AbstractEntity"]);
 
 /***/ }),
 
@@ -4173,14 +4234,13 @@ __webpack_require__.r(__webpack_exports__);
 
 var ENTITY_DATA = {
   MAX_HEALTH: 100,
-  HIT_DAMAGE: 10,
-  HIT_DISTANCE: 90
+  HIT_DAMAGE: 10
 };
 var ZOMBIE_DATA = {
-  /* 	MAX_HEALTH: 100,
-  	HIT_DAMAGE: 10,
-   */
   STEP: 1,
+  HIT_DISTANCE: 30,
+  CREATE_TIMEOUT: 5000,
+  DELETE_TIMEOUT: 1000,
   MICHAEL_CSS: 'image-zombie-michael',
   MICHAEL_DIE_CSS: 'image-zombie-michael-die',
   STRONG_CSS: 'image-zombie-strong',
@@ -4208,7 +4268,8 @@ var PLANT_DATA = {
   PEA_OFFSET_TOP: 36,
   PEA_OFFSET_LEFT: 82,
   SHOOT_TIMEOUT: 1500,
-  DAMAGE_TIMEOUT: 500
+  DAMAGE_TIMEOUT: 500,
+  HIT_DISTANCE: 90
 };
 
 /***/ }),

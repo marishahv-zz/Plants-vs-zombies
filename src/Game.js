@@ -50,6 +50,7 @@ export class Game {
 
 			container.appendChild(rowDiv);
 		}
+		this.engine.fieldWidth = container.clientWidth;
 	}
 
 	start() {
@@ -81,6 +82,7 @@ export class Game {
 
 		plantData.container = ev.target;
 		plantData.rowIndex = this.getRowIndex(ev.target);
+
 		this.engine.createPlant(plantData);
 	}
 

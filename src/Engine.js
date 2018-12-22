@@ -3,35 +3,32 @@ import { Peashooter } from './Peashooter';
 import random from 'lodash/random';
 import pull from 'lodash/pull';
 import { Utils } from './Utils';
-import { ZombieEvents } from './ZombieEvents';
-import { PlantsEvents } from './PlantsEvents';
+import { Event } from './Event';
 
 export class Engine {
 	constructor() {
 		this.zombies = this.create2DArray();
 		this.plants = this.create2DArray();
 		this.peas = this.create2DArray();
-		this.zombieEvents = new ZombieEvents();		// ??????????????????
-		this.PlantsEvents = new PlantsEvents();		// ??????????????????
+		this.fieldWidth;
 	}
 
 	async createPlant(plantData) {
-		let plant = new plantData.type(ENTITY_DATA.MAX_HEALTH, plantData.container, this.events);
+		let event = new Event();
+		let plant = new plantData.type(ENTITY_DATA.MAX_HEALTH, plantData.container);
+
+		event.onKilled(plant.delete.bind(plant));
+		event.onDeleted(this.removeInstanceFromArr.bind(this, this.plants[plantData.rowIndex], plant));
+		event.onDeleted(this.deleteInstance.bind(this, plant));
+		plant.event = event;
+
 		plant.create();
 		this.plants[plantData.rowIndex].push(plant);
 
 		if ( plant instanceof Peashooter) {
-
-			const shootByPea = async () => {
-				let pea = plant.shoot();
-				this.peas[plantData.rowIndex].push(pea);
-
-				await Utils.pause(PLANT_DATA.SHOOT_TIMEOUT);
-				shootByPea();
-			};
-
 			await Utils.pause(2000);
-			shootByPea();
+
+			this.shootByPea(plant, plantData.rowIndex);
 		}
 	};
 
@@ -40,14 +37,37 @@ export class Engine {
 		let index = random(containers.length - 1);
 		let container = containers[index];
 
-		let zombie = new type(ENTITY_DATA.MAX_HEALTH, container, this.events); //hp, container, events,
+		let zombie = new type(ENTITY_DATA.MAX_HEALTH, container);
+		
+		let event = new Event();
+		event.onKilled(zombie.die.bind(zombie));
+		event.onDeleted(this.removeInstanceFromArr.bind(this, this.zombies[index], zombie));
+		event.onDeleted(this.deleteInstance.bind(this, zombie));
+		zombie.event = event;
+
 		zombie.create();
 		this.zombies[index].push(zombie);
 
-		await Utils.pause(5000);
+		await Utils.pause(ZOMBIE_DATA.CREATE_TIMEOUT);
 
 		this.createZombie(containers);
 	}
+
+	async shootByPea(peashooter, rowIndex) {
+		let pea = peashooter.shoot();
+		let event = new Event();
+		event.onDeleted(this.removeInstanceFromArr.bind(this, this.peas[rowIndex], pea));
+		event.onDeleted(this.deleteInstance.bind(this, pea));
+		pea.event = event;
+
+		this.peas[rowIndex].push(pea);
+
+		await Utils.pause(PLANT_DATA.SHOOT_TIMEOUT);
+
+		if (peashooter.health > 0) {
+			this.shootByPea(peashooter, rowIndex);
+		}
+	};
 
 	create2DArray() {
 		var arr = [];
@@ -59,38 +79,41 @@ export class Engine {
 		return arr;
 	}
 
-	animate(rowWidth) {
+	animate() {
 		const frame = () => {
 			that.zombies.forEach((row, rowIndex) => {
 				
 				row.forEach(zombie => {
-					let nearestPlant = this.getNearestPlant(rowIndex);
+					let nearestPlant = this.getNearest('plant', this.plants[rowIndex]);
 
-					if (nearestPlant && zombie.position - nearestPlant.position <= ENTITY_DATA.HIT_DISTANCE) {
+					if (nearestPlant && zombie.position - nearestPlant.position <= PLANT_DATA.HIT_DISTANCE) {
 						if (!nearestPlant.isDamaged) {
 							nearestPlant.isDamaged = true;
 							this.hitPlant(nearestPlant);
 						}
-					} else {
+					} else if (!zombie.isDying) {
 						zombie.move();
 					}
-					
 
 					if (zombie.position <= 0) {
 						clearInterval(id);
-					} /* else {
-						zombie.move();
-					} */
+					}
 				});
 			});
 
-			that.peas.forEach(row => {
+			that.peas.forEach((row, rowIndex) => {
 				row.forEach(pea => {
-					if (pea.position >= rowWidth - pea.width) {
+
+					let nearestZombie = this.getNearest('zombie', this.zombies[rowIndex]);
+
+					if (nearestZombie && nearestZombie.position - pea.position <= ZOMBIE_DATA.HIT_DISTANCE) {
+						if (!nearestZombie.isDying) {
+							this.hitZombie(nearestZombie);
+							pea.delete();
+						}
+					}
+					if (pea.position >= this.fieldWidth - pea.width) {
 						pea.delete();
-						pull(row, pea);
-						pea = null;
-						clearInterval(id);
 					} else {
 						pea.move();
 					}
@@ -101,6 +124,8 @@ export class Engine {
 		let that = this;
 		let id = setInterval(frame, SETTINGS.INTERVAL);
 	}
+	
+	
 
 	async hitPlant(plant) {
 		plant.hit(ENTITY_DATA.HIT_DAMAGE);
@@ -112,25 +137,43 @@ export class Engine {
 
 		if (plant.health <= 0 ) {
 			plant.kill();
-			plant.delete();
 		}
 	}
 
-	/* kill(entity) {
-		entity.kill();
-	} */
+	hitZombie(zombie) {
+		zombie.hit(ENTITY_DATA.HIT_DAMAGE);
 
-	getNearestPlant(rowIndex) {
-		let nearestPlant;
-		let position = 0;
+		if (zombie.health <= 0 ) {
+			zombie.kill();
+		}
+	}
 
-		this.plants[rowIndex].forEach((plant, index, plants) => {
-			if (plant.position > position) {
-				position = plant.position;
-				nearestPlant = plant;
+	getNearest(instanceStr, instanceArr) {
+		let nearestInstance;
+		let position = instanceStr == 'plant' ? 0 : this.fieldWidth;
+
+		instanceArr.forEach((instance) => {
+			if (instanceStr == 'plant') {
+				if (instance.position > position) {
+					position = instance.position;
+					nearestInstance = instance;
+				}
+			} else if (instanceStr == 'zombie') {
+				if (instance.position < position) {
+					position = instance.position;
+					nearestInstance = instance;
+				}
 			}
 		});
 
-		return nearestPlant;
+		return nearestInstance;
+	}
+
+	deleteInstance(instance) {
+		instance = null;
+	}
+
+	removeInstanceFromArr(arr, instance) {
+		pull(arr, instance);
 	}
 }

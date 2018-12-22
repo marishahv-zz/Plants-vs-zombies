@@ -2,16 +2,15 @@ import { ENTITY_DATA } from './constants';
 import { Utils } from './Utils';
 
 export class AbstractEntity {
-	constructor(hp, container, events, imageCSS) {
+	constructor(hp, container, imageCSS) {
 		this.hp = hp || ENTITY_DATA.MAX_HEALTH;
 		this.container = container;
-		this.events = events;
 		this.imageCSS = imageCSS;
-		this.hpDiv = null;
+		this.event;
+		this.hpDiv;
 		this.hpDivInitialWidth = 0;
-		this.entityDiv = null;
+		this.entityDiv;
 		this.position = container.offsetLeft;
-		this.isDamaged = false;
 	}
 
 	create() {
@@ -46,13 +45,7 @@ export class AbstractEntity {
 	kill() {
 		this.hp = 0;
 		this.hpDiv.classList.add('hidden');
-	}
 
-	delete() {
-		while (this.container.firstChild) {
-			this.container.removeChild(this.container.firstChild);
-		}
-
-		//Utils.triggerEvent(this.events.onDeleted);
+		Utils.triggerEvent(this.event.onKilledEvt);
 	}
 }

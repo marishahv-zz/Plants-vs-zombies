@@ -1,8 +1,8 @@
 import { PLANT_DATA } from './constants';
-import { AbstractEntity } from './AbstractEntity';
+import { Plant } from './Plant';
 
-export class Sunflower extends AbstractEntity {
-	constructor(hp, container, events) {
-		super(hp, container, events, PLANT_DATA.SUNFLOWER_CSS);
+export class Sunflower extends Plant {
+	constructor(hp, container) {
+		super(hp, container, PLANT_DATA.SUNFLOWER_CSS);
 	}
 }
