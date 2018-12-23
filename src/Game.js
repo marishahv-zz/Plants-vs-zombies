@@ -6,7 +6,7 @@ import { Sunflower } from './Sunflower';
 import { Wallnut } from './Wallnut';
 import { Peashooter } from './Peashooter';
 import { Engine } from './Engine';
-import { Utils } from './Utils';
+import { Event } from './Event';
 
 export class Game {
 	constructor() {
@@ -19,9 +19,7 @@ export class Game {
 
 	init() {
 		this.playBtn.addEventListener('click', this.start.bind(this));
-		//this.engine.PlantsEvents.onKilled();
 		
-
 		this.renderFieldLayout();
 	}
 
@@ -67,23 +65,47 @@ export class Game {
 	}
 
 	drop(ev) {
-		ev.preventDefault();
-		
-		let plantCardID = ev.dataTransfer.getData("id");
+		if (!ev.target.closest('.cell').hasAttribute('parent')) {
+			ev.preventDefault();
+			
+			let plantCardID = ev.dataTransfer.getData("id");
+			let plantData = this.initPlantData(plantCardID, ev.target);
+			let currentPoints = parseInt(this.menu.sunPointsDiv.textContent);
+
+			if (currentPoints >= plantData.points) {		//event.onCreate
+				this.engine.createPlant(plantData);
+				
+				ev.target.setAttribute('parent', 'true');
+				currentPoints -= plantData.points;
+				this.menu.sunPointsDiv.textContent = currentPoints;
+			}
+		}
+	}
+
+	initPlantData(plantCardID, container) {
 		let plantData = {};
+		let event = new Event();
+
+		event.onDeleted(() => {
+			container.removeAttribute('parent');
+		});
+		plantData.event = event;
 
 		if (plantCardID == PLANT_DATA.SUNFLOWER_CARD_ID) {
 			plantData.type = Sunflower;
+			plantData.points = PLANT_DATA.SUNFLOWER_POINTS;
 		} else if (plantCardID == PLANT_DATA.WALLNUT_CARD_ID) {
 			plantData.type = Wallnut;
+			plantData.points = PLANT_DATA.WALLNUT_POINTS;
 		} else if (plantCardID == PLANT_DATA.PEA_SHOOTER_CARD_ID) {
 			plantData.type = Peashooter;
+			plantData.points = PLANT_DATA.PEA_SHOOTER_POINTS;
 		}
 
-		plantData.container = ev.target;
-		plantData.rowIndex = this.getRowIndex(ev.target);
+		plantData.container = container;
+		plantData.rowIndex = this.getRowIndex(container);
 
-		this.engine.createPlant(plantData);
+		return plantData;
 	}
 
 	getRowIndex(cell) {

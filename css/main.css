@@ -78,6 +78,7 @@ header .wrapper {
 	font-family: 'Boogaloo', cursive;
 	font-weight: 500;
 	font-size: 20px;
+	user-select: none;
 }
 
 #wallnut_card, #pea_shooter_card, #sunflower_card {
