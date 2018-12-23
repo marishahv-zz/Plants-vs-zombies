@@ -37,7 +37,6 @@ export class Zombie extends AbstractEntity {
 
 	delete() {
 		this.container.remove();
-
-		Utils.triggerEvent(this.event.onDeletedEvt);
+		super.delete();
 	}
 }

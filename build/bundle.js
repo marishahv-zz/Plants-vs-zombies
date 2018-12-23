@@ -2966,6 +2966,11 @@ function () {
       _Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].triggerEvent(this.event.onKilledEvt);
     }
   }, {
+    key: "delete",
+    value: function _delete() {
+      _Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].triggerEvent(this.event.onDeletedEvt);
+    }
+  }, {
     key: "health",
     get: function get() {
       return this.hp;
@@ -3093,32 +3098,31 @@ function () {
       var _createPlant = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()(
       /*#__PURE__*/
       _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(plantData) {
-        var event, plant;
+        var plant;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                event = new _Event__WEBPACK_IMPORTED_MODULE_9__["Event"]();
                 plant = new plantData.type(_constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].MAX_HEALTH, plantData.container);
-                event.onKilled(plant.delete.bind(plant));
-                event.onDeleted(this.removeInstanceFromArr.bind(this, this.plants[plantData.rowIndex], plant));
-                event.onDeleted(this.deleteInstance.bind(this, plant));
-                plant.event = event;
+                plantData.event.onKilled(plant.delete.bind(plant));
+                plantData.event.onDeleted(this.removeInstanceFromArr.bind(this, this.plants[plantData.rowIndex], plant));
+                plantData.event.onDeleted(this.deleteInstance.bind(this, plant));
+                plant.event = plantData.event;
                 plant.create();
                 this.plants[plantData.rowIndex].push(plant);
 
                 if (!(plant instanceof _Peashooter__WEBPACK_IMPORTED_MODULE_5__["Peashooter"])) {
-                  _context.next = 12;
+                  _context.next = 11;
                   break;
                 }
 
-                _context.next = 11;
+                _context.next = 10;
                 return _Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].pause(2000);
 
-              case 11:
+              case 10:
                 this.shootByPea(plant, plantData.rowIndex);
 
-              case 12:
+              case 11:
               case "end":
                 return _context.stop();
             }
@@ -3232,13 +3236,13 @@ function () {
       var frame = function frame() {
         that.zombies.forEach(function (row, rowIndex) {
           row.forEach(function (zombie) {
-            var nearestPlant = _this.getNearest('plant', _this.plants[rowIndex]);
+            var nearestPlant = _this.getNearestPlant(_this.plants[rowIndex], zombie.position);
 
-            if (nearestPlant && zombie.position - nearestPlant.position <= _constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].HIT_DISTANCE) {
+            if (nearestPlant) {
               if (!nearestPlant.isDamaged) {
                 nearestPlant.isDamaged = true;
 
-                _this.hitPlant(nearestPlant);
+                _this.hitPlant(nearestPlant, zombie);
               }
             } else if (!zombie.isDying) {
               zombie.move();
@@ -3251,9 +3255,9 @@ function () {
         });
         that.peas.forEach(function (row, rowIndex) {
           row.forEach(function (pea) {
-            var nearestZombie = _this.getNearest('zombie', _this.zombies[rowIndex]);
+            var nearestZombie = _this.getNearestZombie(_this.zombies[rowIndex], pea.position);
 
-            if (nearestZombie && nearestZombie.position - pea.position <= _constants__WEBPACK_IMPORTED_MODULE_4__["ZOMBIE_DATA"].HIT_DISTANCE) {
+            if (nearestZombie) {
               if (!nearestZombie.isDying) {
                 _this.hitZombie(nearestZombie);
 
@@ -3278,14 +3282,14 @@ function () {
     value: function () {
       var _hitPlant = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()(
       /*#__PURE__*/
-      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4(plant) {
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4(plant, zombie) {
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
                 plant.hit(_constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].HIT_DAMAGE);
 
-                if (!(plant.health > 0)) {
+                if (!(plant.health > 0 && zombie.health > 0)) {
                   _context4.next = 5;
                   break;
                 }
@@ -3294,7 +3298,7 @@ function () {
                 return _Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].pause(_constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].DAMAGE_TIMEOUT);
 
               case 4:
-                this.hitPlant(plant);
+                this.hitPlant(plant, zombie);
 
               case 5:
                 if (plant.health <= 0) {
@@ -3309,7 +3313,7 @@ function () {
         }, _callee4, this);
       }));
 
-      function hitPlant(_x5) {
+      function hitPlant(_x5, _x6) {
         return _hitPlant.apply(this, arguments);
       }
 
@@ -3325,24 +3329,30 @@ function () {
       }
     }
   }, {
-    key: "getNearest",
-    value: function getNearest(instanceStr, instanceArr) {
-      var nearestInstance;
-      var position = instanceStr == 'plant' ? 0 : this.fieldWidth;
-      instanceArr.forEach(function (instance) {
-        if (instanceStr == 'plant') {
-          if (instance.position > position) {
-            position = instance.position;
-            nearestInstance = instance;
-          }
-        } else if (instanceStr == 'zombie') {
-          if (instance.position < position) {
-            position = instance.position;
-            nearestInstance = instance;
-          }
+    key: "getNearestPlant",
+    value: function getNearestPlant(plantArr, zombiePosition) {
+      var nearestPlant;
+      plantArr.forEach(function (plant) {
+        var distance = zombiePosition - plant.position;
+
+        if (distance <= _constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].HIT_DISTANCE && distance > 0) {
+          nearestPlant = plant;
         }
       });
-      return nearestInstance;
+      return nearestPlant;
+    }
+  }, {
+    key: "getNearestZombie",
+    value: function getNearestZombie(zombieArr, peaPosition) {
+      var nearestZombie;
+      zombieArr.forEach(function (zombie) {
+        var distance = zombie.position - peaPosition;
+
+        if (distance <= _constants__WEBPACK_IMPORTED_MODULE_4__["ZOMBIE_DATA"].HIT_DISTANCE && distance > 0) {
+          nearestZombie = zombie;
+        }
+      });
+      return nearestZombie;
     }
   }, {
     key: "deleteInstance",
@@ -3433,7 +3443,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Wallnut__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Wallnut */ "./src/Wallnut.js");
 /* harmony import */ var _Peashooter__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Peashooter */ "./src/Peashooter.js");
 /* harmony import */ var _Engine__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Engine */ "./src/Engine.js");
-/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Utils */ "./src/Utils.js");
+/* harmony import */ var _Event__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Event */ "./src/Event.js");
 
 
 
@@ -3463,8 +3473,7 @@ function () {
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Game, [{
     key: "init",
     value: function init() {
-      this.playBtn.addEventListener('click', this.start.bind(this)); //this.engine.PlantsEvents.onKilled();
-
+      this.playBtn.addEventListener('click', this.start.bind(this));
       this.renderFieldLayout();
     }
   }, {
@@ -3511,21 +3520,45 @@ function () {
   }, {
     key: "drop",
     value: function drop(ev) {
-      ev.preventDefault();
-      var plantCardID = ev.dataTransfer.getData("id");
+      if (!ev.target.closest('.cell').hasAttribute('parent')) {
+        ev.preventDefault();
+        var plantCardID = ev.dataTransfer.getData("id");
+        var plantData = this.initPlantData(plantCardID, ev.target);
+        var currentPoints = parseInt(this.menu.sunPointsDiv.textContent);
+
+        if (currentPoints >= plantData.points) {
+          //event.onCreate
+          this.engine.createPlant(plantData);
+          ev.target.setAttribute('parent', 'true');
+          currentPoints -= plantData.points;
+          this.menu.sunPointsDiv.textContent = currentPoints;
+        }
+      }
+    }
+  }, {
+    key: "initPlantData",
+    value: function initPlantData(plantCardID, container) {
       var plantData = {};
+      var event = new _Event__WEBPACK_IMPORTED_MODULE_10__["Event"]();
+      event.onDeleted(function () {
+        container.removeAttribute('parent');
+      });
+      plantData.event = event;
 
       if (plantCardID == _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].SUNFLOWER_CARD_ID) {
         plantData.type = _Sunflower__WEBPACK_IMPORTED_MODULE_6__["Sunflower"];
+        plantData.points = _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].SUNFLOWER_POINTS;
       } else if (plantCardID == _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].WALLNUT_CARD_ID) {
         plantData.type = _Wallnut__WEBPACK_IMPORTED_MODULE_7__["Wallnut"];
+        plantData.points = _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].WALLNUT_POINTS;
       } else if (plantCardID == _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].PEA_SHOOTER_CARD_ID) {
         plantData.type = _Peashooter__WEBPACK_IMPORTED_MODULE_8__["Peashooter"];
+        plantData.points = _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].PEA_SHOOTER_POINTS;
       }
 
-      plantData.container = ev.target;
-      plantData.rowIndex = this.getRowIndex(ev.target);
-      this.engine.createPlant(plantData);
+      plantData.container = container;
+      plantData.rowIndex = this.getRowIndex(container);
+      return plantData;
     }
   }, {
     key: "getRowIndex",
@@ -3588,6 +3621,7 @@ function () {
       this.wallnutCardDiv.addEventListener('dragstart', this.drag.bind(this));
       this.peaShooterCardDiv.addEventListener('dragstart', this.drag.bind(this));
       this.sunPointsDiv.addEventListener('selectstart', this.disableSelect.bind(this));
+      this.sunPointsDiv.addEventListener('select', this.disableSelect.bind(this));
       this.sunPointsDiv.textContent = _constants__WEBPACK_IMPORTED_MODULE_2__["PLANT_DATA"].INITIAL_POINTS;
     }
   }, {
@@ -3822,10 +3856,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/getPrototypeOf.js");
 /* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Utils */ "./src/Utils.js");
-/* harmony import */ var _AbstractEntity__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./AbstractEntity */ "./src/AbstractEntity.js");
+/* harmony import */ var _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/get */ "./node_modules/@babel/runtime/helpers/get.js");
+/* harmony import */ var _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js");
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Utils */ "./src/Utils.js");
+/* harmony import */ var _AbstractEntity__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./AbstractEntity */ "./src/AbstractEntity.js");
+
 
 
 
@@ -3836,7 +3873,7 @@ __webpack_require__.r(__webpack_exports__);
 var Plant =
 /*#__PURE__*/
 function (_AbstractEntity) {
-  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_4___default()(Plant, _AbstractEntity);
+  _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5___default()(Plant, _AbstractEntity);
 
   function Plant(hp, container, imageCSS) {
     var _this;
@@ -3855,12 +3892,12 @@ function (_AbstractEntity) {
         this.container.removeChild(this.container.firstChild);
       }
 
-      _Utils__WEBPACK_IMPORTED_MODULE_5__["Utils"].triggerEvent(this.event.onDeletedEvt);
+      _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_4___default()(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3___default()(Plant.prototype), "delete", this).call(this);
     }
   }]);
 
   return Plant;
-}(_AbstractEntity__WEBPACK_IMPORTED_MODULE_6__["AbstractEntity"]);
+}(_AbstractEntity__WEBPACK_IMPORTED_MODULE_7__["AbstractEntity"]);
 
 /***/ }),
 
@@ -4191,7 +4228,8 @@ function (_AbstractEntity) {
     key: "delete",
     value: function _delete() {
       this.container.remove();
-      _Utils__WEBPACK_IMPORTED_MODULE_10__["Utils"].triggerEvent(this.event.onDeletedEvt);
+
+      _babel_runtime_helpers_get__WEBPACK_IMPORTED_MODULE_6___default()(_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_5___default()(Zombie.prototype), "delete", this).call(this);
     }
   }]);
 

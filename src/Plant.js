@@ -13,6 +13,6 @@ export class Plant extends AbstractEntity {
 			this.container.removeChild(this.container.firstChild);
 		}
 
-		Utils.triggerEvent(this.event.onDeletedEvt);
+		super.delete();
 	}
 }

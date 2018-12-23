@@ -14,13 +14,13 @@ export class Engine {
 	}
 
 	async createPlant(plantData) {
-		let event = new Event();
 		let plant = new plantData.type(ENTITY_DATA.MAX_HEALTH, plantData.container);
 
-		event.onKilled(plant.delete.bind(plant));
-		event.onDeleted(this.removeInstanceFromArr.bind(this, this.plants[plantData.rowIndex], plant));
-		event.onDeleted(this.deleteInstance.bind(this, plant));
-		plant.event = event;
+		plantData.event.onKilled(plant.delete.bind(plant));
+		plantData.event.onDeleted(this.removeInstanceFromArr.bind(this, this.plants[plantData.rowIndex], plant));
+		plantData.event.onDeleted(this.deleteInstance.bind(this, plant));
+
+		plant.event = plantData.event;
 
 		plant.create();
 		this.plants[plantData.rowIndex].push(plant);
@@ -84,12 +84,12 @@ export class Engine {
 			that.zombies.forEach((row, rowIndex) => {
 				
 				row.forEach(zombie => {
-					let nearestPlant = this.getNearest('plant', this.plants[rowIndex]);
+					let nearestPlant = this.getNearestPlant(this.plants[rowIndex], zombie.position);
 
-					if (nearestPlant && zombie.position - nearestPlant.position <= PLANT_DATA.HIT_DISTANCE) {
+					if (nearestPlant) {
 						if (!nearestPlant.isDamaged) {
 							nearestPlant.isDamaged = true;
-							this.hitPlant(nearestPlant);
+							this.hitPlant(nearestPlant, zombie);
 						}
 					} else if (!zombie.isDying) {
 						zombie.move();
@@ -103,10 +103,9 @@ export class Engine {
 
 			that.peas.forEach((row, rowIndex) => {
 				row.forEach(pea => {
+					let nearestZombie = this.getNearestZombie(this.zombies[rowIndex], pea.position);
 
-					let nearestZombie = this.getNearest('zombie', this.zombies[rowIndex]);
-
-					if (nearestZombie && nearestZombie.position - pea.position <= ZOMBIE_DATA.HIT_DISTANCE) {
+					if (nearestZombie) {
 						if (!nearestZombie.isDying) {
 							this.hitZombie(nearestZombie);
 							pea.delete();
@@ -125,14 +124,12 @@ export class Engine {
 		let id = setInterval(frame, SETTINGS.INTERVAL);
 	}
 	
-	
-
-	async hitPlant(plant) {
+	async hitPlant(plant, zombie) {
 		plant.hit(ENTITY_DATA.HIT_DAMAGE);
 
-		if (plant.health > 0 ) {
+		if (plant.health > 0 && zombie.health > 0) {
 			await Utils.pause(PLANT_DATA.DAMAGE_TIMEOUT);
-			this.hitPlant(plant);
+			this.hitPlant(plant, zombie);
 		}
 
 		if (plant.health <= 0 ) {
@@ -148,25 +145,30 @@ export class Engine {
 		}
 	}
 
-	getNearest(instanceStr, instanceArr) {
-		let nearestInstance;
-		let position = instanceStr == 'plant' ? 0 : this.fieldWidth;
+	getNearestPlant(plantArr, zombiePosition) {
+		let nearestPlant;
 
-		instanceArr.forEach((instance) => {
-			if (instanceStr == 'plant') {
-				if (instance.position > position) {
-					position = instance.position;
-					nearestInstance = instance;
-				}
-			} else if (instanceStr == 'zombie') {
-				if (instance.position < position) {
-					position = instance.position;
-					nearestInstance = instance;
-				}
+		plantArr.forEach((plant) => {
+			let distance = zombiePosition - plant.position;
+			if (distance <= PLANT_DATA.HIT_DISTANCE && distance > 0) {
+				nearestPlant = plant;
 			}
 		});
 
-		return nearestInstance;
+		return nearestPlant;
+	}
+
+	getNearestZombie(zombieArr, peaPosition) {
+		let nearestZombie;
+
+		zombieArr.forEach((zombie) => {
+			let distance = zombie.position - peaPosition;
+			if (distance <= ZOMBIE_DATA.HIT_DISTANCE && distance > 0) {
+				nearestZombie = zombie;
+			}
+		});
+
+		return nearestZombie;
 	}
 
 	deleteInstance(instance) {

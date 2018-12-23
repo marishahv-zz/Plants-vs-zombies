@@ -48,4 +48,8 @@ export class AbstractEntity {
 
 		Utils.triggerEvent(this.event.onKilledEvt);
 	}
+
+	delete() {
+		Utils.triggerEvent(this.event.onDeletedEvt);
+	}
 }
