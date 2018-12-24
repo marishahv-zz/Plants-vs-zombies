@@ -40,6 +40,12 @@ export class Menu {
 		this.sunflowerCardDiv.classList.add('disabled');
 	}
 
+	setSunPoints(points) {
+		let currentPoints = parseInt(this.sunPointsDiv.textContent);
+
+		this.sunPointsDiv.textContent = currentPoints + points;
+	}
+
 	disableSelect(ev) {
 		ev.preventDefault();
 	}

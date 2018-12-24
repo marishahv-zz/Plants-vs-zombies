@@ -25,6 +25,8 @@ export class AbstractEntity {
 		this.entityDiv.className = 'image';
 		this.entityDiv.classList.add(this.imageCSS);
 		this.container.appendChild(this.entityDiv);
+
+		Utils.triggerEvent(this.event.onCreatedEvt);
 	}
 
 	renderHp() {

@@ -10,9 +10,9 @@ import { Event } from './Event';
 
 export class Game {
 	constructor() {
-		this.audio = new Audio();	// убрать в файл
-		this.menu = new Menu();		// убрать в файл
-		this.engine = new Engine();
+		this.audio = new Audio();
+		this.menu = new Menu();
+		this.engine = new Engine(this.menu);
 		this.playBtn = document.getElementById('play');
 		this.init();
 	}
@@ -72,24 +72,14 @@ export class Game {
 			let plantData = this.initPlantData(plantCardID, ev.target);
 			let currentPoints = parseInt(this.menu.sunPointsDiv.textContent);
 
-			if (currentPoints >= plantData.points) {		//event.onCreate
+			if (currentPoints >= plantData.points) {
 				this.engine.createPlant(plantData);
-				
-				ev.target.setAttribute('parent', 'true');
-				currentPoints -= plantData.points;
-				this.menu.sunPointsDiv.textContent = currentPoints;
 			}
 		}
 	}
 
 	initPlantData(plantCardID, container) {
 		let plantData = {};
-		let event = new Event();
-
-		event.onDeleted(() => {
-			container.removeAttribute('parent');
-		});
-		plantData.event = event;
 
 		if (plantCardID == PLANT_DATA.SUNFLOWER_CARD_ID) {
 			plantData.type = Sunflower;
@@ -104,8 +94,24 @@ export class Game {
 
 		plantData.container = container;
 		plantData.rowIndex = this.getRowIndex(container);
+		plantData.event = this.initPlantEvent(container, plantData.points);
 
 		return plantData;
+	}
+
+	initPlantEvent(container, points) {
+		let event = new Event();
+
+		event.onCreated(() => {
+			this.menu.setSunPoints(-points);
+			container.setAttribute('parent', 'true');
+		});
+
+		event.onDeleted(() => {
+			container.removeAttribute('parent');
+		});
+
+		return event;
 	}
 
 	getRowIndex(cell) {
