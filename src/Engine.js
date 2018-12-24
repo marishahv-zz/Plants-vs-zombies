@@ -1,15 +1,18 @@
 import { ENTITY_DATA, PLANT_DATA, ZOMBIE_DATA, SETTINGS } from './constants';
 import { Peashooter } from './Peashooter';
+import { Sunflower } from './Sunflower';
 import random from 'lodash/random';
 import pull from 'lodash/pull';
 import { Utils } from './Utils';
 import { Event } from './Event';
 
 export class Engine {
-	constructor() {
+	constructor(menu) {
 		this.zombies = this.create2DArray();
 		this.plants = this.create2DArray();
 		this.peas = this.create2DArray();
+		this.menu = menu;
+		this.sunflowerCount = 0;
 		this.fieldWidth;
 	}
 
@@ -29,6 +32,13 @@ export class Engine {
 			await Utils.pause(2000);
 
 			this.shootByPea(plant, plantData.rowIndex);
+		}
+
+		if (plant instanceof Sunflower) {
+			if (this.sunflowerCount == 0) {
+				this.generateSunPoints();
+			}
+			this.sunflowerCount++;
 		}
 	};
 
@@ -51,6 +61,13 @@ export class Engine {
 		await Utils.pause(ZOMBIE_DATA.CREATE_TIMEOUT);
 
 		this.createZombie(containers);
+	}
+
+	async generateSunPoints() {
+		this.menu.setSunPoints(this.sunflowerCount * PLANT_DATA.SUN_POINTS);
+
+		await Utils.pause(PLANT_DATA.GENERATE_POINTS_TIMEOUT);
+		this.generateSunPoints();
 	}
 
 	async shootByPea(peashooter, rowIndex) {
@@ -102,6 +119,7 @@ export class Engine {
 			});
 
 			that.peas.forEach((row, rowIndex) => {
+
 				row.forEach(pea => {
 					let nearestZombie = this.getNearestZombie(this.zombies[rowIndex], pea.position);
 
@@ -134,6 +152,10 @@ export class Engine {
 
 		if (plant.health <= 0 ) {
 			plant.kill();
+
+			if (plant instanceof Sunflower) {
+				this.sunflowerCount--;
+			}
 		}
 	}
 

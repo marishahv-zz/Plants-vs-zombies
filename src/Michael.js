@@ -4,7 +4,6 @@ import { Zombie } from './Zombie';
 export class Michael extends Zombie {
 	constructor(hp, container) {
 		super(hp, container, ZOMBIE_DATA.MICHAEL_CSS, ZOMBIE_DATA.MICHAEL_DIE_CSS);
-		//this.hp = super.hp < 50 ? 0 : super.hp;
 	}
 
 	get health() {

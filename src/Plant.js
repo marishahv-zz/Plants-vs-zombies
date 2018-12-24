@@ -1,4 +1,3 @@
-import { Utils } from './Utils';
 import { AbstractEntity } from './AbstractEntity';
 
 export class Plant extends AbstractEntity {
