@@ -42,17 +42,28 @@ header .wrapper {
 	margin-left: 50px;
 }
 
-#play {
+#play, #stop {
 	width: 120px;
 	height: 38px;
 	margin-left: 30px;
-	background: url("../img/play.png") no-repeat center;
-	background-size: 120px 45px;
+	/* background: url("../img/play.png") no-repeat center;
+	background-size: 120px 45px; */
 	outline: none;
 	border-radius: 19px;
 	border: none;
 	box-shadow: 2px 2px 2px 0px #fff inset, -2px -2px 2px 1px rgb(112, 30, 0) inset;
 	cursor: pointer;
+}
+
+#play {
+	background: url("../img/play.png") no-repeat center;
+	background-size: 120px 45px;
+}
+
+#stop {
+	background: url("../img/stop.png") no-repeat;
+	background-size: 140px 54px;
+	background-position: -10px -4px;
 }
 
 #play:not(.disabled):active {
@@ -219,4 +230,19 @@ header .wrapper {
 	height: 25px;
 	width: 25px;
 	position: absolute;
+}
+
+.game-over, .title {
+	width: 500px;
+	height: 400px;
+	margin: 50px auto 0px;
+}
+
+.game-over {
+	background: url("../img/game-over.png") no-repeat center;
+}
+
+.title {
+	background: url("../img/title.png") no-repeat center;
+	background-size: contain;
 }

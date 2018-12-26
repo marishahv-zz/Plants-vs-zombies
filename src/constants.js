@@ -21,11 +21,10 @@ export const ZOMBIE_DATA = {
 export const SETTINGS = {
 	ROW_COUNT: 5,
 	CELL_COUNT: 8,
-	INTERVAL: 50, 
+	INTERVAL: 50,
 }
 
 export const PLANT_DATA = {
-	/* MAX_HEALTH: 100, */
 	INITIAL_POINTS: 50,
 	SUN_POINTS: 50,
 	GENERATE_POINTS_TIMEOUT: 3000,

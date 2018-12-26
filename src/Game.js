@@ -1,5 +1,4 @@
-import random from 'lodash/random';
-import { SETTINGS, PLANT_DATA, ZOMBIE_DATA } from "./constants";
+import { SETTINGS, PLANT_DATA } from "./constants";
 import {Audio} from './Audio';
 import { Menu } from "./Menu";
 import { Sunflower } from './Sunflower';
@@ -10,22 +9,23 @@ import { Event } from './Event';
 
 export class Game {
 	constructor() {
+		this.engine;
 		this.audio = new Audio();
 		this.menu = new Menu();
-		this.engine = new Engine(this.menu);
+		this.field = document.querySelector('.grid');
+		this.titleDiv = document.querySelector('.title');
+		this.gameOverDiv = document.querySelector('.game-over');
 		this.playBtn = document.getElementById('play');
+		this.stopBtn = document.getElementById('stop');
 		this.init();
 	}
 
 	init() {
-		this.playBtn.addEventListener('click', this.start.bind(this));
-		
-		this.renderFieldLayout();
+		this.playBtn.addEventListener('click', this.play.bind(this));
+		this.stopBtn.addEventListener('click', this.stop.bind(this));
 	}
 
 	renderFieldLayout() {
-		let container = document.querySelector('.grid');
-		
 		for (let i = 0; i < SETTINGS.ROW_COUNT; i++) {
 			let rowDiv = document.createElement('div');
 			rowDiv.className = 'row';
@@ -46,22 +46,51 @@ export class Game {
 				}
 			}
 
-			container.appendChild(rowDiv);
+			this.field.appendChild(rowDiv);
 		}
-		this.engine.fieldWidth = container.clientWidth;
 	}
 
-	start() {
-		if (!this.playBtn.classList.contains('disabled')) {
-			this.playBtn.classList.add('disabled');
-			this.menu.enable();
+	initGameField() {
+		this.titleDiv.classList.add('not-displayed');
+		this.gameOverDiv.classList.add('not-displayed');
+		this.field.classList.remove('not-displayed');
+
+		if (!this.field.firstElementChild) {
+			this.renderFieldLayout();
+		}
+	}
+
+	play() {
+		if (!this.engine) {
+			this.engine = new Engine(this.menu);
+			this.engine.event.onGameOver(this.gameOver.bind(this));
+		}
+
+		this.engine.isStopped = false;
+
+		this.initGameField();
+
+		this.playBtn.classList.add('not-displayed');
+		this.stopBtn.classList.remove('not-displayed');
+		this.menu.enable();
+
+		if (!this.engine.isZombieGenerated) {
+			this.engine.isZombieGenerated = true;
 
 			let zombieInitialContainers = document.querySelectorAll('.zombie-initial-container');
 			this.engine.createZombie(zombieInitialContainers);
-
-			let rowWidth = document.querySelector('.row').clientWidth;
-			this.engine.animate(rowWidth);
 		}
+
+		let fieldWidth = document.querySelector('.row').clientWidth;
+		this.engine.animate(fieldWidth);
+	}
+
+	stop() {
+		clearInterval(this.engine.timerID);
+		this.menu.disable();
+		this.playBtn.classList.remove('not-displayed');
+		this.stopBtn.classList.add('not-displayed');
+		this.engine.isStopped = true;
 	}
 
 	drop(ev) {
@@ -72,7 +101,7 @@ export class Game {
 			let plantData = this.initPlantData(plantCardID, ev.target);
 			let currentPoints = parseInt(this.menu.sunPointsDiv.textContent);
 
-			if (currentPoints >= plantData.points) {
+			if (this.engine && currentPoints >= plantData.points) {
 				this.engine.createPlant(plantData);
 			}
 		}
@@ -127,5 +156,23 @@ export class Game {
 
 	allowDrop(ev) {
 		ev.preventDefault();
+	}
+
+	gameOver() {
+		this.menu.disable();
+
+		clearInterval(this.engine.timerID);
+		this.engine.isStopped = true;
+		this.engine.isZombieGenerated = false;
+		this.engine.deleteAllEntities();
+		this.engine = null;
+
+		this.menu.sunPointsDiv.textContent = PLANT_DATA.INITIAL_POINTS;
+		this.stopBtn.classList.add('not-displayed');
+		this.playBtn.classList.remove('not-displayed');
+
+		this.field.classList.add('not-displayed');
+		this.gameOverDiv.classList.remove('not-displayed');
+		this.audio.toggleMusic();
 	}
 }
