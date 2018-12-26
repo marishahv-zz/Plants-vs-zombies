@@ -20,5 +20,5 @@ export class Event{
 
 	onGameOver(callback) {
 		this.onGameOverEvt.push(callback);
-	}; 
+	};
 }

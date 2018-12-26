@@ -2,10 +2,10 @@ import { PLANT_DATA } from './constants';
 import { Utils } from './Utils';
 
 export class Pea {
-	constructor(initialContainer) {
-		this.position = initialContainer.offsetLeft;
-		this.initialContainer = initialContainer;
-		this.peaDiv = this.create(initialContainer);
+	constructor(сontainer) {
+		this.position = сontainer.offsetLeft;
+		this.сontainer = сontainer;
+		this.peaDiv = this.create(сontainer);
 		this.width = this.peaDiv.clientWidth;
 		this.event;
 	}
@@ -17,7 +17,8 @@ export class Pea {
 		peaDiv.style.top = PLANT_DATA.PEA_OFFSET_TOP + 'px';
 		this.position += PLANT_DATA.PEA_OFFSET_LEFT;
 		peaDiv.style.left = this.position + 'px';
-		this.initialContainer.appendChild(peaDiv);
+		
+		this.сontainer.appendChild(peaDiv);
 
 		return peaDiv;
 	}

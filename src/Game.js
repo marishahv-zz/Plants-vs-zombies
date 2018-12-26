@@ -69,7 +69,6 @@ export class Game {
 		this.engine.isStopped = false;
 
 		this.initGameField();
-
 		this.playBtn.classList.add('not-displayed');
 		this.stopBtn.classList.remove('not-displayed');
 		this.menu.enable();
@@ -87,9 +86,10 @@ export class Game {
 
 	stop() {
 		clearInterval(this.engine.timerID);
+
 		this.menu.disable();
-		this.playBtn.classList.remove('not-displayed');
 		this.stopBtn.classList.add('not-displayed');
+		this.playBtn.classList.remove('not-displayed');
 		this.engine.isStopped = true;
 	}
 
@@ -128,11 +128,11 @@ export class Game {
 		return plantData;
 	}
 
-	initPlantEvent(container, points) {
+	initPlantEvent(container, plantPoints) {
 		let event = new Event();
 
 		event.onCreated(() => {
-			this.menu.setSunPoints(-points);
+			this.menu.setSunPoints(-plantPoints);
 			container.setAttribute('parent', 'true');
 		});
 
