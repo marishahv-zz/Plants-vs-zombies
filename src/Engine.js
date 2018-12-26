@@ -22,19 +22,15 @@ export class Engine {
 
 	async createPlant(plantData) {
 		let plant = new plantData.type(ENTITY_DATA.MAX_HEALTH, plantData.container);
-
-		plantData.event.onKilled(plant.delete.bind(plant));
-		plantData.event.onDeleted(this.removeInstanceFromArr.bind(this, this.plants[plantData.rowIndex], plant));
-		plantData.event.onDeleted(this.deleteInstance.bind(this, plant));
-
+		
 		plant.event = plantData.event;
+		this.initPlantEvent(plant, this.plants[plantData.rowIndex]);
 
 		plant.create();
 		this.plants[plantData.rowIndex].push(plant);
 
 		if ( plant instanceof Peashooter) {
-			await Utils.pause(2000);			///////////////   in constants ///  edit title img
-
+			await Utils.pause(PLANT_DATA.START_SHOOT_TIMEOUT);
 			this.shootByPea(plant, plantData.rowIndex);
 		}
 
@@ -47,19 +43,20 @@ export class Engine {
 		}
 	};
 
+	initPlantEvent(plant, plantArr) {
+		plant.event.onKilled(plant.delete.bind(plant));
+		plant.event.onDeleted(this.removeInstanceFromArr.bind(this, plantArr, plant));
+		plant.event.onDeleted(this.deleteInstance.bind(this, plant));
+	}
+
 	async createZombie(containers) {
 		if (!this.isStopped) {
-			let type = ZOMBIE_DATA.TYPE[random(1)];
+			let zombieType = ZOMBIE_DATA.TYPE[random(1)];
 			let index = random(containers.length - 1);
 			let container = containers[index];
 
-			let zombie = new type(ENTITY_DATA.MAX_HEALTH, container);
-			
-			let event = new Event();
-			event.onKilled(zombie.die.bind(zombie));
-			event.onDeleted(this.removeInstanceFromArr.bind(this, this.zombies[index], zombie));
-			event.onDeleted(this.deleteInstance.bind(this, zombie)); 
-			zombie.event = event;
+			let zombie = new zombieType(ENTITY_DATA.MAX_HEALTH, container);
+			this.initZombieEvent(zombie, this.zombies[index]);
 
 			zombie.create();
 			this.zombies[index].push(zombie);
@@ -69,10 +66,20 @@ export class Engine {
 		this.createZombie(containers);
 	}
 
+	initZombieEvent(zombie, zombieArr) {
+		let event = new Event();
+
+		event.onKilled(zombie.die.bind(zombie));
+		event.onDeleted(this.removeInstanceFromArr.bind(this, zombieArr, zombie));
+		event.onDeleted(this.deleteInstance.bind(this, zombie)); 
+		zombie.event = event;
+	}
+
 	async generateSunPoints() {
 		if (!this.isStopped) {
 			this.menu.setSunPoints(this.sunflowerCount * PLANT_DATA.SUN_POINTS);
 		}
+
 		await Utils.pause(PLANT_DATA.GENERATE_POINTS_TIMEOUT);
 		this.generateSunPoints();
 	}
@@ -94,16 +101,6 @@ export class Engine {
 			this.shootByPea(peashooter, rowIndex);
 		}
 	};
-
-	create2DArray() {
-		let arr = [];
-
-		for (let i = 0; i < SETTINGS.ROW_COUNT; i++) {
-			arr[i] = [];
-		}
-
-		return arr;
-	}
 
 	animate(fieldWidth) {
 		const frame = () => {
@@ -212,14 +209,14 @@ export class Engine {
 	}
 
 	deleteAllEntities() {
-		this.clear2DArray(this.zombies);
-		this.clear2DArray(this.plants);
-		this.clear2DArray(this.peas);
+		this.clear2DArrayOfEntities(this.zombies);
+		this.clear2DArrayOfEntities(this.plants);
+		this.clear2DArrayOfEntities(this.peas);
 
 		this.sunflowerCount = 0;
 	}
 
-	clear2DArray(entity2DArray) {
+	clear2DArrayOfEntities(entity2DArray) {
 		for (let i = 0; i < entity2DArray.length; i++) {
 			let rowLength = entity2DArray[i].length;
 
@@ -228,5 +225,15 @@ export class Engine {
 				rowLength--;
 			}
 		}
+	}
+
+	create2DArray() {
+		let arr = [];
+
+		for (let i = 0; i < SETTINGS.ROW_COUNT; i++) {
+			arr[i] = [];
+		}
+
+		return arr;
 	}
 }

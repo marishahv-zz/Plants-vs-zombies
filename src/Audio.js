@@ -11,6 +11,7 @@ export class Audio {
 	init() {
 		this.audioIconUp.addEventListener('click', this.toggleMusic.bind(this));
 		this.audioIconMute.addEventListener('click', this.toggleMusic.bind(this));
+		this.audioElement.loop = true;
 	}
 
 	toggleMusic() {

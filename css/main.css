@@ -35,7 +35,7 @@ header .wrapper {
 	position: relative;
 }
 
-#temp {					/* ///////////////////// */
+#temp {
 	height: 110px;
 	width: 100px;
 	border: 2px solid black;
@@ -46,8 +46,6 @@ header .wrapper {
 	width: 120px;
 	height: 38px;
 	margin-left: 30px;
-	/* background: url("../img/play.png") no-repeat center;
-	background-size: 120px 45px; */
 	outline: none;
 	border-radius: 19px;
 	border: none;
@@ -132,12 +130,8 @@ header .wrapper {
 	background-size: contain;
 }
 
-/*///////////grid////////////*/
-
 .grid {
-	/* height: 500px; */
 	display: grid;
-	/* grid-template-columns: repeat(8, 105px); */
 	grid-template-rows: repeat(5, 105px);
 	margin-top: 30px;
 }
@@ -157,14 +151,6 @@ header .wrapper {
 	background: url("../img/grass-even.png");
 	background-size: 210px;
 }
- 
-/*.cell {
-	position: relative;
-} */
-
-/* .zombie-initial-container {
-	position: relative;
-} */
 
 .cell:hover {
 	border: 1px solid rgb(210, 95, 14);
@@ -175,7 +161,6 @@ header .wrapper {
 }
 
 .zombie-wrapper {
-	/* width: 100%; */
 	width: 105px;
 	height: 100%;
 	display: flex;

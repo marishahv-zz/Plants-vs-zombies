@@ -22,12 +22,14 @@ export class Zombie extends AbstractEntity {
 
 	kill() {
 		let zombieImageDiv = this.zombieDiv.getElementsByClassName(this.imageCSS)[0];
+
 		zombieImageDiv.classList.remove(this.imageCSS);
 		super.kill();
 	}
 
 	async die() {
 		let zombieImageDiv = this.zombieDiv.getElementsByClassName('image')[0];
+		
 		zombieImageDiv.classList.add(this.dieCSS);
 		this.isDying = true;
 

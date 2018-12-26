@@ -1,4 +1,5 @@
 export class Utils {
+	
 	static async pause(time){
 		return new Promise((resolve) => {
 			setTimeout(resolve, time);
