@@ -3,9 +3,10 @@ export class Event{
 		this.onCreatedEvt = [];
 		this.onKilledEvt = [];
 		this.onDeletedEvt = [];
+		this.onGameOverEvt = [];
 	}
 
-	onCreated(callback){
+	onCreated(callback) {
 		this.onCreatedEvt.push(callback);
 	};
 
@@ -15,5 +16,9 @@ export class Event{
 
 	onDeleted(callback) {
 		this.onDeletedEvt.push(callback);
+	};
+
+	onGameOver(callback) {
+		this.onGameOverEvt.push(callback);
 	}; 
 }

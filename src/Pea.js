@@ -1,4 +1,4 @@
-import { PLANT_DATA, SETTINGS } from './constants';
+import { PLANT_DATA } from './constants';
 import { Utils } from './Utils';
 
 export class Pea {
@@ -12,6 +12,7 @@ export class Pea {
 
 	create() {
 		let peaDiv = document.createElement('div');
+
 		peaDiv.className = 'pea';
 		peaDiv.style.top = PLANT_DATA.PEA_OFFSET_TOP + 'px';
 		this.position += PLANT_DATA.PEA_OFFSET_LEFT;

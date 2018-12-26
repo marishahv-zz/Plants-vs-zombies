@@ -3092,9 +3092,13 @@ function () {
     this.zombies = this.create2DArray();
     this.plants = this.create2DArray();
     this.peas = this.create2DArray();
+    this.event = new _Event__WEBPACK_IMPORTED_MODULE_10__["Event"]();
     this.menu = menu;
     this.sunflowerCount = 0;
-    this.fieldWidth;
+    this.timerID;
+    this.isStopped = false;
+    this.isZombieGenerated = false;
+    this.isSunPointsGenerated = false;
   }
 
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3___default()(Engine, [{
@@ -3125,12 +3129,14 @@ function () {
                 return _Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].pause(2000);
 
               case 10:
+                ///////////////   in constants ///  edit title img
                 this.shootByPea(plant, plantData.rowIndex);
 
               case 11:
                 if (plant instanceof _Sunflower__WEBPACK_IMPORTED_MODULE_6__["Sunflower"]) {
-                  if (this.sunflowerCount == 0) {
+                  if (!this.isSunPointsGenerated) {
                     this.generateSunPoints();
+                    this.isSunPointsGenerated = true;
                   }
 
                   this.sunflowerCount++;
@@ -3161,24 +3167,27 @@ function () {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                type = _constants__WEBPACK_IMPORTED_MODULE_4__["ZOMBIE_DATA"].TYPE[lodash_random__WEBPACK_IMPORTED_MODULE_7___default()(1)];
-                index = lodash_random__WEBPACK_IMPORTED_MODULE_7___default()(containers.length - 1);
-                container = containers[index];
-                zombie = new type(_constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].MAX_HEALTH, container);
-                event = new _Event__WEBPACK_IMPORTED_MODULE_10__["Event"]();
-                event.onKilled(zombie.die.bind(zombie));
-                event.onDeleted(this.removeInstanceFromArr.bind(this, this.zombies[index], zombie));
-                event.onDeleted(this.deleteInstance.bind(this, zombie));
-                zombie.event = event;
-                zombie.create();
-                this.zombies[index].push(zombie);
-                _context2.next = 13;
+                if (!this.isStopped) {
+                  type = _constants__WEBPACK_IMPORTED_MODULE_4__["ZOMBIE_DATA"].TYPE[lodash_random__WEBPACK_IMPORTED_MODULE_7___default()(1)];
+                  index = lodash_random__WEBPACK_IMPORTED_MODULE_7___default()(containers.length - 1);
+                  container = containers[index];
+                  zombie = new type(_constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].MAX_HEALTH, container);
+                  event = new _Event__WEBPACK_IMPORTED_MODULE_10__["Event"]();
+                  event.onKilled(zombie.die.bind(zombie));
+                  event.onDeleted(this.removeInstanceFromArr.bind(this, this.zombies[index], zombie));
+                  event.onDeleted(this.deleteInstance.bind(this, zombie));
+                  zombie.event = event;
+                  zombie.create();
+                  this.zombies[index].push(zombie);
+                }
+
+                _context2.next = 3;
                 return _Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].pause(_constants__WEBPACK_IMPORTED_MODULE_4__["ZOMBIE_DATA"].CREATE_TIMEOUT);
 
-              case 13:
+              case 3:
                 this.createZombie(containers);
 
-              case 14:
+              case 4:
               case "end":
                 return _context2.stop();
             }
@@ -3202,7 +3211,10 @@ function () {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                this.menu.setSunPoints(this.sunflowerCount * _constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].SUN_POINTS);
+                if (!this.isStopped) {
+                  this.menu.setSunPoints(this.sunflowerCount * _constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].SUN_POINTS);
+                }
+
                 _context3.next = 3;
                 return _Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].pause(_constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].GENERATE_POINTS_TIMEOUT);
 
@@ -3234,21 +3246,24 @@ function () {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
-                pea = peashooter.shoot();
-                event = new _Event__WEBPACK_IMPORTED_MODULE_10__["Event"]();
-                event.onDeleted(this.removeInstanceFromArr.bind(this, this.peas[rowIndex], pea));
-                event.onDeleted(this.deleteInstance.bind(this, pea));
-                pea.event = event;
-                this.peas[rowIndex].push(pea);
-                _context4.next = 8;
+                if (!this.isStopped) {
+                  pea = peashooter.shoot();
+                  event = new _Event__WEBPACK_IMPORTED_MODULE_10__["Event"]();
+                  event.onDeleted(this.removeInstanceFromArr.bind(this, this.peas[rowIndex], pea));
+                  event.onDeleted(this.deleteInstance.bind(this, pea));
+                  pea.event = event;
+                  this.peas[rowIndex].push(pea);
+                }
+
+                _context4.next = 3;
                 return _Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].pause(_constants__WEBPACK_IMPORTED_MODULE_4__["PLANT_DATA"].SHOOT_TIMEOUT);
 
-              case 8:
+              case 3:
                 if (peashooter.health > 0) {
                   this.shootByPea(peashooter, rowIndex);
                 }
 
-              case 9:
+              case 4:
               case "end":
                 return _context4.stop();
             }
@@ -3275,7 +3290,7 @@ function () {
     }
   }, {
     key: "animate",
-    value: function animate() {
+    value: function animate(fieldWidth) {
       var _this = this;
 
       var frame = function frame() {
@@ -3294,7 +3309,7 @@ function () {
             }
 
             if (zombie.position <= 0) {
-              clearInterval(id);
+              _Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].triggerEvent(_this.event.onGameOverEvt);
             }
           });
         });
@@ -3310,7 +3325,7 @@ function () {
               }
             }
 
-            if (pea.position >= _this.fieldWidth - pea.width) {
+            if (pea.position >= fieldWidth - pea.width) {
               pea.delete();
             } else {
               pea.move();
@@ -3320,7 +3335,7 @@ function () {
       };
 
       var that = this;
-      var id = setInterval(frame, _constants__WEBPACK_IMPORTED_MODULE_4__["SETTINGS"].INTERVAL);
+      this.timerID = setInterval(frame, _constants__WEBPACK_IMPORTED_MODULE_4__["SETTINGS"].INTERVAL);
     }
   }, {
     key: "hitPlant",
@@ -3332,7 +3347,17 @@ function () {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
-                plant.hit(_constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].HIT_DAMAGE);
+                if (!this.isStopped) {
+                  plant.hit(_constants__WEBPACK_IMPORTED_MODULE_4__["ENTITY_DATA"].HIT_DAMAGE);
+
+                  if (plant.health <= 0) {
+                    if (plant instanceof _Sunflower__WEBPACK_IMPORTED_MODULE_6__["Sunflower"]) {
+                      this.sunflowerCount--;
+                    }
+
+                    plant.kill();
+                  }
+                }
 
                 if (!(plant.health > 0 && zombie.health > 0)) {
                   _context5.next = 5;
@@ -3346,15 +3371,6 @@ function () {
                 this.hitPlant(plant, zombie);
 
               case 5:
-                if (plant.health <= 0) {
-                  plant.kill();
-
-                  if (plant instanceof _Sunflower__WEBPACK_IMPORTED_MODULE_6__["Sunflower"]) {
-                    this.sunflowerCount--;
-                  }
-                }
-
-              case 6:
               case "end":
                 return _context5.stop();
             }
@@ -3413,6 +3429,26 @@ function () {
     value: function removeInstanceFromArr(arr, instance) {
       lodash_pull__WEBPACK_IMPORTED_MODULE_8___default()(arr, instance);
     }
+  }, {
+    key: "deleteAllEntities",
+    value: function deleteAllEntities() {
+      this.clear2DArray(this.zombies);
+      this.clear2DArray(this.plants);
+      this.clear2DArray(this.peas);
+      this.sunflowerCount = 0;
+    }
+  }, {
+    key: "clear2DArray",
+    value: function clear2DArray(entity2DArray) {
+      for (var i = 0; i < entity2DArray.length; i++) {
+        var rowLength = entity2DArray[i].length;
+
+        while (rowLength > 0) {
+          entity2DArray[i][0].delete();
+          rowLength--;
+        }
+      }
+    }
   }]);
 
   return Engine;
@@ -3445,6 +3481,7 @@ function () {
     this.onCreatedEvt = [];
     this.onKilledEvt = [];
     this.onDeletedEvt = [];
+    this.onGameOverEvt = [];
   }
 
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Event, [{
@@ -3461,6 +3498,11 @@ function () {
     key: "onDeleted",
     value: function onDeleted(callback) {
       this.onDeletedEvt.push(callback);
+    }
+  }, {
+    key: "onGameOver",
+    value: function onGameOver(callback) {
+      this.onGameOverEvt.push(callback);
     }
   }]);
 
@@ -3483,17 +3525,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
 /* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lodash_random__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lodash/random */ "./node_modules/lodash/random.js");
-/* harmony import */ var lodash_random__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(lodash_random__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
-/* harmony import */ var _Audio__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Audio */ "./src/Audio.js");
-/* harmony import */ var _Menu__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Menu */ "./src/Menu.js");
-/* harmony import */ var _Sunflower__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Sunflower */ "./src/Sunflower.js");
-/* harmony import */ var _Wallnut__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Wallnut */ "./src/Wallnut.js");
-/* harmony import */ var _Peashooter__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Peashooter */ "./src/Peashooter.js");
-/* harmony import */ var _Engine__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Engine */ "./src/Engine.js");
-/* harmony import */ var _Event__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Event */ "./src/Event.js");
-
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _Audio__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Audio */ "./src/Audio.js");
+/* harmony import */ var _Menu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Menu */ "./src/Menu.js");
+/* harmony import */ var _Sunflower__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Sunflower */ "./src/Sunflower.js");
+/* harmony import */ var _Wallnut__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Wallnut */ "./src/Wallnut.js");
+/* harmony import */ var _Peashooter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Peashooter */ "./src/Peashooter.js");
+/* harmony import */ var _Engine__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Engine */ "./src/Engine.js");
+/* harmony import */ var _Event__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Event */ "./src/Event.js");
 
 
 
@@ -3510,59 +3549,90 @@ function () {
   function Game() {
     _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Game);
 
-    this.audio = new _Audio__WEBPACK_IMPORTED_MODULE_4__["Audio"]();
-    this.menu = new _Menu__WEBPACK_IMPORTED_MODULE_5__["Menu"]();
-    this.engine = new _Engine__WEBPACK_IMPORTED_MODULE_9__["Engine"](this.menu);
+    this.engine;
+    this.audio = new _Audio__WEBPACK_IMPORTED_MODULE_3__["Audio"]();
+    this.menu = new _Menu__WEBPACK_IMPORTED_MODULE_4__["Menu"]();
+    this.field = document.querySelector('.grid');
+    this.titleDiv = document.querySelector('.title');
+    this.gameOverDiv = document.querySelector('.game-over');
     this.playBtn = document.getElementById('play');
+    this.stopBtn = document.getElementById('stop');
     this.init();
   }
 
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Game, [{
     key: "init",
     value: function init() {
-      this.playBtn.addEventListener('click', this.start.bind(this));
-      this.renderFieldLayout();
+      this.playBtn.addEventListener('click', this.play.bind(this));
+      this.stopBtn.addEventListener('click', this.stop.bind(this));
     }
   }, {
     key: "renderFieldLayout",
     value: function renderFieldLayout() {
-      var container = document.querySelector('.grid');
-
-      for (var i = 0; i < _constants__WEBPACK_IMPORTED_MODULE_3__["SETTINGS"].ROW_COUNT; i++) {
+      for (var i = 0; i < _constants__WEBPACK_IMPORTED_MODULE_2__["SETTINGS"].ROW_COUNT; i++) {
         var rowDiv = document.createElement('div');
         rowDiv.className = 'row';
 
-        for (var j = 0; j < _constants__WEBPACK_IMPORTED_MODULE_3__["SETTINGS"].CELL_COUNT; j++) {
+        for (var j = 0; j < _constants__WEBPACK_IMPORTED_MODULE_2__["SETTINGS"].CELL_COUNT; j++) {
           var cellDiv = document.createElement('div');
           cellDiv.className = 'cell';
           rowDiv.appendChild(cellDiv);
 
-          if (j !== _constants__WEBPACK_IMPORTED_MODULE_3__["SETTINGS"].CELL_COUNT - 1) {
+          if (j !== _constants__WEBPACK_IMPORTED_MODULE_2__["SETTINGS"].CELL_COUNT - 1) {
             cellDiv.addEventListener('drop', this.drop.bind(this));
             cellDiv.addEventListener('dragover', this.allowDrop.bind(this));
           }
 
-          if (j == _constants__WEBPACK_IMPORTED_MODULE_3__["SETTINGS"].CELL_COUNT - 1) {
+          if (j == _constants__WEBPACK_IMPORTED_MODULE_2__["SETTINGS"].CELL_COUNT - 1) {
             cellDiv.classList.add('zombie-initial-container');
           }
         }
 
-        container.appendChild(rowDiv);
+        this.field.appendChild(rowDiv);
       }
-
-      this.engine.fieldWidth = container.clientWidth;
     }
   }, {
-    key: "start",
-    value: function start() {
-      if (!this.playBtn.classList.contains('disabled')) {
-        this.playBtn.classList.add('disabled');
-        this.menu.enable();
+    key: "initGameField",
+    value: function initGameField() {
+      this.titleDiv.classList.add('not-displayed');
+      this.gameOverDiv.classList.add('not-displayed');
+      this.field.classList.remove('not-displayed');
+
+      if (!this.field.firstElementChild) {
+        this.renderFieldLayout();
+      }
+    }
+  }, {
+    key: "play",
+    value: function play() {
+      if (!this.engine) {
+        this.engine = new _Engine__WEBPACK_IMPORTED_MODULE_8__["Engine"](this.menu);
+        this.engine.event.onGameOver(this.gameOver.bind(this));
+      }
+
+      this.engine.isStopped = false;
+      this.initGameField();
+      this.playBtn.classList.add('not-displayed');
+      this.stopBtn.classList.remove('not-displayed');
+      this.menu.enable();
+
+      if (!this.engine.isZombieGenerated) {
+        this.engine.isZombieGenerated = true;
         var zombieInitialContainers = document.querySelectorAll('.zombie-initial-container');
         this.engine.createZombie(zombieInitialContainers);
-        var rowWidth = document.querySelector('.row').clientWidth;
-        this.engine.animate(rowWidth);
       }
+
+      var fieldWidth = document.querySelector('.row').clientWidth;
+      this.engine.animate(fieldWidth);
+    }
+  }, {
+    key: "stop",
+    value: function stop() {
+      clearInterval(this.engine.timerID);
+      this.menu.disable();
+      this.playBtn.classList.remove('not-displayed');
+      this.stopBtn.classList.add('not-displayed');
+      this.engine.isStopped = true;
     }
   }, {
     key: "drop",
@@ -3573,7 +3643,7 @@ function () {
         var plantData = this.initPlantData(plantCardID, ev.target);
         var currentPoints = parseInt(this.menu.sunPointsDiv.textContent);
 
-        if (currentPoints >= plantData.points) {
+        if (this.engine && currentPoints >= plantData.points) {
           this.engine.createPlant(plantData);
         }
       }
@@ -3583,15 +3653,15 @@ function () {
     value: function initPlantData(plantCardID, container) {
       var plantData = {};
 
-      if (plantCardID == _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].SUNFLOWER_CARD_ID) {
-        plantData.type = _Sunflower__WEBPACK_IMPORTED_MODULE_6__["Sunflower"];
-        plantData.points = _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].SUNFLOWER_POINTS;
-      } else if (plantCardID == _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].WALLNUT_CARD_ID) {
-        plantData.type = _Wallnut__WEBPACK_IMPORTED_MODULE_7__["Wallnut"];
-        plantData.points = _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].WALLNUT_POINTS;
-      } else if (plantCardID == _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].PEA_SHOOTER_CARD_ID) {
-        plantData.type = _Peashooter__WEBPACK_IMPORTED_MODULE_8__["Peashooter"];
-        plantData.points = _constants__WEBPACK_IMPORTED_MODULE_3__["PLANT_DATA"].PEA_SHOOTER_POINTS;
+      if (plantCardID == _constants__WEBPACK_IMPORTED_MODULE_2__["PLANT_DATA"].SUNFLOWER_CARD_ID) {
+        plantData.type = _Sunflower__WEBPACK_IMPORTED_MODULE_5__["Sunflower"];
+        plantData.points = _constants__WEBPACK_IMPORTED_MODULE_2__["PLANT_DATA"].SUNFLOWER_POINTS;
+      } else if (plantCardID == _constants__WEBPACK_IMPORTED_MODULE_2__["PLANT_DATA"].WALLNUT_CARD_ID) {
+        plantData.type = _Wallnut__WEBPACK_IMPORTED_MODULE_6__["Wallnut"];
+        plantData.points = _constants__WEBPACK_IMPORTED_MODULE_2__["PLANT_DATA"].WALLNUT_POINTS;
+      } else if (plantCardID == _constants__WEBPACK_IMPORTED_MODULE_2__["PLANT_DATA"].PEA_SHOOTER_CARD_ID) {
+        plantData.type = _Peashooter__WEBPACK_IMPORTED_MODULE_7__["Peashooter"];
+        plantData.points = _constants__WEBPACK_IMPORTED_MODULE_2__["PLANT_DATA"].PEA_SHOOTER_POINTS;
       }
 
       plantData.container = container;
@@ -3604,7 +3674,7 @@ function () {
     value: function initPlantEvent(container, points) {
       var _this = this;
 
-      var event = new _Event__WEBPACK_IMPORTED_MODULE_10__["Event"]();
+      var event = new _Event__WEBPACK_IMPORTED_MODULE_9__["Event"]();
       event.onCreated(function () {
         _this.menu.setSunPoints(-points);
 
@@ -3629,6 +3699,22 @@ function () {
     key: "allowDrop",
     value: function allowDrop(ev) {
       ev.preventDefault();
+    }
+  }, {
+    key: "gameOver",
+    value: function gameOver() {
+      this.menu.disable();
+      clearInterval(this.engine.timerID);
+      this.engine.isStopped = true;
+      this.engine.isZombieGenerated = false;
+      this.engine.deleteAllEntities();
+      this.engine = null;
+      this.menu.sunPointsDiv.textContent = _constants__WEBPACK_IMPORTED_MODULE_2__["PLANT_DATA"].INITIAL_POINTS;
+      this.stopBtn.classList.add('not-displayed');
+      this.playBtn.classList.remove('not-displayed');
+      this.field.classList.add('not-displayed');
+      this.gameOverDiv.classList.remove('not-displayed');
+      this.audio.toggleMusic();
     }
   }]);
 
@@ -4359,7 +4445,6 @@ var SETTINGS = {
   INTERVAL: 50
 };
 var PLANT_DATA = {
-  /* MAX_HEALTH: 100, */
   INITIAL_POINTS: 50,
   SUN_POINTS: 50,
   GENERATE_POINTS_TIMEOUT: 3000,
