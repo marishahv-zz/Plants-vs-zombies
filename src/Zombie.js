@@ -28,7 +28,7 @@ export class Zombie extends AbstractEntity {
 	}
 
 	async die() {
-		let zombieImageDiv = this.zombieDiv.getElementsByClassName('image')[0];
+		let zombieImageDiv = this.zombieDiv.querySelector('.image');
 		
 		zombieImageDiv.classList.add(this.dieCSS);
 		this.isDying = true;

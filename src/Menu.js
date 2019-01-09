@@ -11,11 +11,11 @@ export class Menu {
 	}
 
 	init() {
-		this.sunflowerCardDiv.addEventListener('dragstart', this.drag.bind(this));
-		this.wallnutCardDiv.addEventListener('dragstart', this.drag.bind(this));
-		this.peaShooterCardDiv.addEventListener('dragstart', this.drag.bind(this));
-		this.sunPointsDiv.addEventListener('selectstart', this.disableSelect.bind(this));
-		this.sunPointsDiv.addEventListener('select', this.disableSelect.bind(this));
+		this.sunflowerCardDiv.addEventListener('dragstart', this.drag);
+		this.wallnutCardDiv.addEventListener('dragstart', this.drag);
+		this.peaShooterCardDiv.addEventListener('dragstart', this.drag);
+		this.sunPointsDiv.addEventListener('selectstart', this.disableSelect);
+		this.sunPointsDiv.addEventListener('select', this.disableSelect);
 
 		this.sunPointsDiv.textContent = PLANT_DATA.INITIAL_POINTS;
 	}
