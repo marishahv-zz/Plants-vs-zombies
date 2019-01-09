@@ -21,7 +21,7 @@ export class Zombie extends AbstractEntity {
 	}
 
 	kill() {
-		let zombieImageDiv = this.zombieDiv.getElementsByClassName(this.imageCSS)[0];
+		let zombieImageDiv = this.zombieDiv.querySelector('.image');
 
 		zombieImageDiv.classList.remove(this.imageCSS);
 		super.kill();
